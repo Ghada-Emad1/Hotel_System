@@ -17,39 +17,42 @@ class RolesAndPermissionsSeeder extends Seeder
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
         // Create permissions
-        Permission::create(['name' => 'manage managers']);
-        Permission::create(['name' => 'manage receptionists']);
-        Permission::create(['name' => 'manage clients']);
-        Permission::create(['name' => 'manage floors']);
-        Permission::create(['name' => 'manage rooms']);
-        Permission::create(['name' => 'approve clients']);
-        Permission::create(['name' => 'make reservations']);
+        Permission::create(['name' => 'manage_managers']);
+        Permission::create(['name' => 'manage_receptionists']);
+        Permission::create(['name' => 'manage_clients']);
+        Permission::create(['name' => 'manage_floors']);
+        Permission::create(['name' => 'manage_rooms']);
+        Permission::create(['name' => 'approve_clients']);
+        Permission::create(['name' => 'make_reservations']);
+        Permission::create(['name' => 'view_reports']);
 
         // Create roles and assign permissions
         $adminRole = Role::create(['name' => 'admin']);
         $adminRole->givePermissionTo([
-            'manage managers',
-            'manage receptionists',
-            'manage clients',
-            'manage floors',
-            'manage rooms',
+            'manage_managers',
+            'manage_receptionists',
+            'manage_clients',
+            'manage_floors',
+            'manage_rooms',
+            'view_reports',
         ]);
 
         $managerRole = Role::create(['name' => 'manager']);
         $managerRole->givePermissionTo([
-            'manage receptionists',
-            'manage floors',
-            'manage rooms',
+            'manage_receptionists',
+            'manage_floors',
+            'manage_rooms',
+            'view_reports'
         ]);
 
         $receptionistRole = Role::create(['name' => 'receptionist']);
         $receptionistRole->givePermissionTo([
-            'approve clients',
+            'approve_clients',
         ]);
 
         $clientRole = Role::create(['name' => 'client']);
         $clientRole->givePermissionTo([
-            'make reservations',
+            'make_reservations',
         ]);
     }
 }

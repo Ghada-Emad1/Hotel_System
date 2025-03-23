@@ -1,22 +1,74 @@
 <script setup lang="ts">
-import NavFooter from '@/components/NavFooter.vue';
-import NavMain from '@/components/NavMain.vue';
-import NavUser from '@/components/NavUser.vue';
-import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
-import { type NavItem } from '@/types';
-import { Link, usePage } from '@inertiajs/vue3';
-import { BookOpen, Folder, HeartOff, LayoutGrid } from 'lucide-vue-next';
-import AppLogo from './AppLogo.vue';
+import { Button } from '@/components/ui/button';
+import { NavItem } from '@/types';
+import { usePage } from '@inertiajs/vue3';
+import { User } from 'lucide-vue-next';
+import { computed } from 'vue';
+import { useRouter } from 'vue-router';
+import { BookOpen, Folder } from 'lucide-vue-next';
 
+// Get user data from Inertia.js props
 const page = usePage();
-console.log(page);
-const mainNavItems: NavItem[] = [
-    {
-        title: 'Dashboard',
-        href: '/admin/dashboard',
-        icon: LayoutGrid,
-    },
-];
+const user = computed(() => page.props.auth.user);
+
+// Extract user permissions (fallback to empty array if undefined)
+const permissions = computed(() => page.props.auth.user.permissions || []);
+console.log('What user can do', permissions.value.includes('manage_managers'));
+
+
+const dashboard = {
+    title: 'Dashboard',
+    href: '/admin/dashboard',
+    icon: User,
+};
+
+// Define navigation items with required permissions
+const mainNav = computed(() => {
+    const items: NavItem[] = [dashboard];
+    if (permissions.value.includes('manage_managers')) {
+        items.push({
+            title: 'Manage Managers',
+            href: '/admin/managers',
+            icon: User,
+        });
+    }
+    if (permissions.value.includes('manage_receptionists')) {
+        items.push({
+            title: 'Manage Receptionists',
+            href: '/admin/receptionists',
+            icon: User,
+        });
+    }
+    if (permissions.value.includes('manage_clients')) {
+        items.push({
+            title: 'Manage Clients',
+            href: '/admin/clients',
+            icon: User,
+        });
+    }
+    if (permissions.value.includes('manage_floors')) {
+        items.push({
+            title: 'Manage Floors',
+            href: '/admin/floors',
+            icon: User,
+        });
+    }
+    if (permissions.value.includes('manage_rooms')) {
+        items.push({
+            title: 'Manage Rooms',
+            href: '/admin/rooms',
+            icon: User,
+        });
+    }
+    if (permissions.value.includes('view_reports')) {
+        items.push({
+            title: 'View Reports',
+            href: '/admin/reports',
+            icon: User,
+        });
+    }
+    return items;
+});
 
 const footerNavItems: NavItem[] = [
     {
@@ -37,19 +89,17 @@ const footerNavItems: NavItem[] = [
         <SidebarHeader>
             <SidebarMenu>
                 <SidebarMenuItem>
-                    
                     <SidebarMenuButton size="lg" as-child>
-                        <Link :href="route('dashbaord')">
+                        <Link :href="route('admin.dashboard')">
                             <AppLogo />
                         </Link>
-                        
                     </SidebarMenuButton>
                 </SidebarMenuItem>
             </SidebarMenu>
         </SidebarHeader>
 
         <SidebarContent>
-            <NavMain :items="mainNavItems" />
+            <NavMain :items="mainNav" />
         </SidebarContent>
 
         <SidebarFooter>

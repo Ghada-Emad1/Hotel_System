@@ -8,6 +8,7 @@ defineProps<{
 }>();
 
 const page = usePage<SharedData>();
+
 </script>
 
 <template>

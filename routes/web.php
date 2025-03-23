@@ -1,7 +1,5 @@
 <?php
 
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\ManagerController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -10,15 +8,16 @@ Route::get('/', function () {
 })->name('home');
 
 Route::get('dashboard', function () {
-    return Inertia::render('Dashboard'); // Corrected component name
-})->name('dashboard');
+    return Inertia::render('Dashboard');
+})->middleware(['auth','verified'])->name('dashboard');
 
-// Route::get('admin/dashboard', function () {
-//     return Inertia::render('AdminDashboard');
-// })->name('admin.dashboard');
-
-Route::get('admin/dashboard', function () {
-    return Inertia::render('Hello');
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('admin/dashboard', function () {
+        return Inertia::render('AdminDashboard', [
+            'admin' => true,
+        ]);
+    })->name('admin.dashboard');
 });
+
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';
