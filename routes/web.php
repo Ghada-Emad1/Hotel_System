@@ -11,11 +11,14 @@ Route::get('/', function () {
 
 Route::get('dashboard', function () {
     return Inertia::render('Dashboard'); // Corrected component name
-})->middleware(['auth', 'verified'])->name('dashboard');
+})->name('dashboard');
+
+// Route::get('admin/dashboard', function () {
+//     return Inertia::render('AdminDashboard');
+// })->name('admin.dashboard');
 
 Route::get('admin/dashboard', function () {
-    return Inertia::render('AdminDashboard');
-})->middleware(['auth', 'verified'])->name('admin.dashboard');
-
+    return Inertia::render('Hello');
+});
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';

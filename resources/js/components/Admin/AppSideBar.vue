@@ -37,8 +37,9 @@ const footerNavItems: NavItem[] = [
         <SidebarHeader>
             <SidebarMenu>
                 <SidebarMenuItem>
+                    
                     <SidebarMenuButton size="lg" as-child>
-                        <Link :href="route('')">
+                        <Link :href="route('dashbaord')">
                             <AppLogo />
                         </Link>
                         
