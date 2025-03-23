@@ -13,7 +13,9 @@ Route::get('dashboard', function () {
     return Inertia::render('Dashboard'); // Corrected component name
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::resource('admin/managers', ManagerController::class)->middleware('auth');
+Route::get('admin/dashboard', function () {
+    return Inertia::render('AdminDashboard');
+})->middleware(['auth', 'verified'])->name('admin.dashboard');
 
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';

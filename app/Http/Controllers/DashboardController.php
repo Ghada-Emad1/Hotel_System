@@ -8,7 +8,14 @@ class DashboardController extends Controller
 {
     public function index()
     {
-      
-        return Inertia::render('Admin/Dashboard'); 
+        return Inertia::render('Admin/Dashboard', [
+            'auth' => [
+                'user' => auth()->user(),
+                'can' => [
+                    'manage_users' => auth()->user()->can('manage_users'),
+                    // Add other permissions as needed
+                ],
+            ],
+        ]);
     }
 }
