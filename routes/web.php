@@ -37,7 +37,7 @@ Route::prefix('admin/managers')->middleware(['auth', 'verified'])->group(functio
 
 Route::middleware(['auth', 'role:manager'])->group(function () {
     Route::get('manager/dashboard', function () {
-        return Inertia::render('AdminDashboard', [
+        return Inertia::render('ManagerDashboard', [
             'manager' => true,
         ]);
     })->name('manager.dashboard');
