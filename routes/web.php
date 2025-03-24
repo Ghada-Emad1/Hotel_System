@@ -20,7 +20,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 });
 
 Route::get('/dashboard/manager',function(){
-    return Inertia::render('ManagerDashboard',[
+    return Inertia::render('AdminDashboard',[
         'manager' => true,
     ]);
 })->middleware(['auth','role:manager'])->name('manager.dashboard');
@@ -35,6 +35,14 @@ Route::prefix('admin/managers')->middleware(['auth', 'verified'])->group(functio
     })->name('managers.index');
     });
 
+
+    Route::middleware(['auth', 'role:manager'])->group(function () {
+        Route::get('manager/dashboard', function () {
+            return Inertia::render('ManagerDashboard', [
+                'manager' => true,
+            ]);
+        })->name('manager.dashboard');
+    });
 
 
 require __DIR__ . '/settings.php';
