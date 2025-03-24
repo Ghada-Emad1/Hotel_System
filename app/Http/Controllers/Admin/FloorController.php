@@ -39,7 +39,7 @@ class FloorController extends Controller
             'manager_id' => auth()->id(),
         ]);
 
-        return redirect()->route('floors.index')->with('success', 'Floor created successfully.');
+        return redirect()->route('floor.index')->with('success', 'Floor created successfully.');
     }
 
     public function update(UpdateFloorRequest $request, Floor $floor)
@@ -50,7 +50,7 @@ class FloorController extends Controller
 
         $floor->update($request->validated());
 
-        return redirect()->route('floors.index')->with('success', 'Floor updated successfully.');
+        return redirect()->route('floor.index')->with('success', 'Floor updated successfully.');
     }
 
     public function destroy(Floor $floor)

@@ -54,6 +54,15 @@ Route::prefix('admin/clients')->middleware(['auth', 'verified'])->group(function
     Route::delete('{client}/destroy', [ClientController::class, 'destroy'])->name('client.destroy');
 });
 
+Route::prefix('admin/floors')->middleware(['auth', 'verified'])->group(function () {
+    Route::get('/', [ClientController::class, 'index'])->name('floor.index');
+    Route::get('create', [ClientController::class, 'create'])->name('floor.create');
+    Route::post('store', [ClientController::class, 'store'])->name('floor.store');
+    Route::get('{floor}/edit', [ClientController::class, 'edit'])->name('floor.edit');
+    Route::put('{floor}/update', [ClientController::class, 'update'])->name('floor.update');
+    Route::delete('{floor}/destroy', [ClientController::class, 'destroy'])->name('floor.destroy');
+});
+
 Route::middleware(['auth', 'role:manager'])->group(function () {
     Route::get('manager/dashboard', function () {
         return Inertia::render('ManagerDashboard', [

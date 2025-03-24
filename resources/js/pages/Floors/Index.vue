@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import { useForm } from '@inertiajs/vue3';
 import AddFloorModal from './AddFloorModal.vue';
 import EditFloorModal from './EditFloorModal.vue';
+import AdminAppLayout from '@/layouts/AdminAppLayout.vue';
 
 const props = defineProps({
   floors: Array,
@@ -24,6 +25,7 @@ const deleteFloor = (floorId) => {
 </script>
 
 <template>
+ <AdminAppLayout>
   <div class="p-6">
     <h1 class="text-2xl font-bold mb-4">Manage Floors</h1>
 
@@ -56,4 +58,5 @@ const deleteFloor = (floorId) => {
     <AddFloorModal v-if="showAddModal" @close="showAddModal = false" />
     <EditFloorModal v-if="selectedFloor" :floor="selectedFloor" @close="selectedFloor = null" />
   </div>
+  </AdminAppLayout> 
 </template>
