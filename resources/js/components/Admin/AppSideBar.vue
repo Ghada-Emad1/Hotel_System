@@ -70,6 +70,13 @@ const mainNav = computed(() => {
             icon: User,
         });
     }
+     if (permissions.value.includes('approve_clients')) {
+        items.push({
+            title: 'approve clients',
+            href: `/${user.value}/clients`,
+            icon: User,
+        });
+    }
     return items;
 });
 
@@ -85,6 +92,7 @@ const footerNavItems: NavItem[] = [
         href: 'https://laravel.com/docs/starter-kits',
         icon: BookOpen,
     },
+
 ];
 console.log('Main Nav', mainNav.value);
 </script>

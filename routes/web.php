@@ -43,6 +43,13 @@ Route::middleware(['auth', 'role:manager'])->group(function () {
     })->name('manager.dashboard');
 });
 
+Route::middleware(['auth', 'role:receptionist'])->group(function () {
+    Route::get('receptionist/dashboard', function () {
+        return Inertia::render('ReceptionistDashboard', [
+            'receptionist' => true,
+        ]);
+    })->name('receptionist.dashboard');
+});
 
 
 require __DIR__ . '/settings.php';
