@@ -1,6 +1,6 @@
 <!-- resources/js/Pages/Admin/Managers/Index.vue -->
 <script setup>
-import AdminAppLayout from '@/Layouts/AdminAppLayout.vue';
+import AdminAppLayout from '@/layouts/AdminAppLayout.vue';
 import { Head, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
 

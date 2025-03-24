@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import AdminAppLayout from '@/layouts/AdminAppLayout.vue';
+
 import { Head, usePage } from '@inertiajs/vue3';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { computed } from 'vue';
+import AdminAppLayout from '@/layouts/AdminAppLayout.vue';
 
 // Get the user permissions from the usePage hook
 const page = usePage();
