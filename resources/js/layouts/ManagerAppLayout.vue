@@ -13,7 +13,8 @@ withDefaults(defineProps<Props>(), {
 
 <template>
     <AppLayout :breadcrumbs="breadcrumbs">
-        <AppSideBar />
         <slot />
+        <AppSideBar />
+        
     </AppLayout>
 </template>

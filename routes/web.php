@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\ManagerController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -9,7 +10,7 @@ Route::get('/', function () {
 
 Route::get('dashboard', function () {
     return Inertia::render('Dashboard');
-})->middleware(['auth','verified'])->name('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('admin/dashboard', function () {
@@ -19,30 +20,29 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     })->name('admin.dashboard');
 });
 
-Route::get('/dashboard/manager',function(){
-    return Inertia::render('AdminDashboard',[
-        'manager' => true,
-    ]);
-})->middleware(['auth','role:manager'])->name('manager.dashboard');
 
 
 
 
 
 Route::prefix('admin/managers')->middleware(['auth', 'verified'])->group(function () {
-    Route::get('/', function () {
-       return Inertia::render('Managers/Index');
-    })->name('managers.index');
-    });
+    Route::get('/', [ManagerController::class, 'index'])->name('managers.index');
+    Route::get('create', [ManagerController::class, 'create'])->name('managers.create');
+    Route::post('store', [ManagerController::class, 'store'])->name('managers.store');
+    Route::get('{manager}/edit', [ManagerController::class, 'edit'])->name('managers.edit');
+    Route::put('{manager}/update', [ManagerController::class, 'update'])->name('managers.update');
+    Route::delete('{manager}/destroy', [ManagerController::class, 'destroy'])->name('managers.destroy');
+});
 
 
-    Route::middleware(['auth', 'role:manager'])->group(function () {
-        Route::get('manager/dashboard', function () {
-            return Inertia::render('ManagerDashboard', [
-                'manager' => true,
-            ]);
-        })->name('manager.dashboard');
-    });
+Route::middleware(['auth', 'role:manager'])->group(function () {
+    Route::get('manager/dashboard', function () {
+        return Inertia::render('ManagerDashboard', [
+            'manager' => true,
+        ]);
+    })->name('manager.dashboard');
+});
+
 
 
 require __DIR__ . '/settings.php';

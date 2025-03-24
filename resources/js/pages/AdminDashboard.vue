@@ -28,6 +28,6 @@ const roleTitle = computed(() => {
 
     <AdminAppLayout>
         
-        
+        it is admin
     </AdminAppLayout>
 </template>

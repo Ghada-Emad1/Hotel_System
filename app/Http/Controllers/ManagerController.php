@@ -1,5 +1,4 @@
-<?php
-
+<?ph
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
@@ -16,6 +15,7 @@ class ManagerController extends Controller
     public function index()
     {
         $managers = User::where('role', 'manager')->get();
+
         return Inertia::render('Managers/Index', [
             'managers' => $managers,
         ]);
