@@ -1,32 +1,39 @@
 <script setup lang="ts">
-import AdminAppLayout from '@/layouts/AdminAppLayout.vue';
+import ManagerAppLayout from '@/layouts/ManagerAppLayout.vue';
 import { Head, usePage } from '@inertiajs/vue3';
-// import { Button } from '@/components/ui/button';
-// import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-// import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { computed } from 'vue';
 
-// Get the user permissions from the usePage hook
+// جلب بيانات المستخدم من Inertia
 const page = usePage();
 const user = computed(() => page.props.auth.user);
-console.log("User DAta",page.props.auth.user.roles);
-const can = computed(() => page.props.auth.user.permissions || {});
 
-
-// Title based on the user role
-const roleTitle = computed(() => {
-    if (user.value.role === 'admin') return 'Admin Dashboard';
-    if (user.value.role === 'manager') return 'Manager Dashboard';
-    if (user.value.role === 'receptionist') return 'Receptionist Dashboard';
-    return 'Dashboard';
-});
+// تحديد العنوان المناسب
+const roleTitle = computed(() => 'Manager Dashboard');
 </script>
 
 <template>
-
     <Head :title="roleTitle" />
 
-    <AdminAppLayout>
+    <ManagerAppLayout>
+        <div class="p-6">
+            <h1 class="text-2xl font-bold">Welcome, {{ user.name }}</h1>
+            <p class="text-gray-600">This is your manager dashboard.</p>
 
-    </AdminAppLayout>
+            <!-- إضافة الإحصائيات والبيانات الخاصة بالمدير -->
+            <div class="grid grid-cols-3 gap-4 mt-4">
+                <div class="bg-white p-4 shadow rounded">
+                    <h2 class="text-lg font-bold">Total Receptionists</h2>
+                    <p class="text-3xl">12</p>
+                </div>
+                <div class="bg-white p-4 shadow rounded">
+                    <h2 class="text-lg font-bold">Total Rooms</h2>
+                    <p class="text-3xl">50</p>
+                </div>
+                <div class="bg-white p-4 shadow rounded">
+                    <h2 class="text-lg font-bold">Pending Reservations</h2>
+                    <p class="text-3xl">5</p>
+                </div>
+            </div>
+        </div>
+    </ManagerAppLayout>
 </template>
