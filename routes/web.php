@@ -34,7 +34,6 @@ Route::prefix('admin/managers')->middleware(['auth', 'verified'])->group(functio
     Route::delete('{manager}/destroy', [ManagerController::class, 'destroy'])->name('managers.destroy');
 });
 
-
 Route::middleware(['auth', 'role:manager'])->group(function () {
     Route::get('manager/dashboard', function () {
         return Inertia::render('ManagerDashboard', [
