@@ -1,6 +1,8 @@
+<!-- resources/js/Pages/Admin/Managers/Index.vue -->
 <script setup>
-import AdminAppLayout from '@/layouts/AdminAppLayout.vue';
-import { Head, Link } from '@inertiajs/vue3';
+import AdminAppLayout from '@/Layouts/AdminAppLayout.vue';
+import { Head, router } from '@inertiajs/vue3';
+import { ref } from 'vue';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -9,88 +11,53 @@ import {
   TableCell,
   TableHead,
   TableHeader,
-  TableRow
+  TableRow,
 } from '@/components/ui/table';
 
-// تعريف رؤوس الأعمدة
-const headers = [
-  { key: 'name', label: 'Name' },
-  { key: 'email', label: 'Email' },
-  { key: 'national_id', label: 'National ID' },
-  { key: 'country', label: 'Country' },
-  { key: 'gender', label: 'Gender' },
-];
+import AddManagerModal from './AddManagerModal.vue';
+import EditManagerModal from './EditManagerModal.vue';
 
-// بيانات ثابتة للمدراء
-const managers = [
-  {
-    id: 1,
-    name: 'John Doe',
-    email: 'john@example.com',
-    national_id: '123456789',
-    country: 'USA',
-    gender: 'Male',
-  },
-  {
-    id: 2,
-    name: 'Jane Smith',
-    email: 'jane@example.com',
-    national_id: '987654321',
-    country: 'Canada',
-    gender: 'Female',
-  },
-  {
-    id: 3,
-    name: 'Ali Hassan',
-    email: 'ali@example.com',
-    national_id: '456789123',
-    country: 'Egypt',
-    gender: 'Male',
-  },
-];
+const props = defineProps({
+  managers: Array,
+});
 
-// إجراءات ثابتة لأزرار الجدول
-const actions = [
-  {
-    label: 'Edit',
-    handler: (manager) => {
-      alert(`Edit clicked for: ${manager.name}`);
-    },
-  },
-  {
-    label: 'Delete',
-    handler: (manager) => {
-      if (confirm(`Are you sure you want to delete ${manager.name}?`)) {
-        alert(`Deleted: ${manager.name}`);
-      }
-    },
-  },
-];
+const showAddModal = ref(false);
+const showEditModal = ref(false);
+const selectedManager = ref(null);
+
+const openEditModal = (manager) => {
+  selectedManager.value = manager;
+  showEditModal.value = true;
+};
+
+const deleteManager = (id) => {
+  if (confirm('Are you sure you want to delete this manager?')) {
+    router.delete(route('managers.destroy', id));
+  }
+};
 </script>
 
 <template>
   <Head title="Manage Managers" />
 
   <AdminAppLayout>
-    <div class="flex flex-col gap-4 p-8">
-        <div class="flex justify-between items-center mb-6">
+    <div class="p-8 space-y-6">
+      <div class="flex justify-between items-center">
         <h1 class="text-2xl font-bold">Manage Managers</h1>
-        <Link href="#">
-          <Button>Add Manager</Button>
-        </Link>
+        <Button @click="showAddModal = true">Add Manager</Button>
       </div>
 
-      <!-- جدول بيانات المدراء الثابت -->
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead v-for="header in headers" :key="header.key">
-              {{ header.label }}
-            </TableHead>
+            <TableHead>Name</TableHead>
+            <TableHead>Email</TableHead>
+            <TableHead>National ID</TableHead>
+            <TableHead>Country</TableHead>
+            <TableHead>Gender</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
-
         <TableBody>
           <TableRow v-for="manager in managers" :key="manager.id">
             <TableCell>{{ manager.name }}</TableCell>
@@ -99,18 +66,19 @@ const actions = [
             <TableCell>{{ manager.country }}</TableCell>
             <TableCell>{{ manager.gender }}</TableCell>
             <TableCell>
-              <Button
-                v-for="action in actions"
-                :key="action.label"
-                class="mr-2"
-                @click="action.handler(manager)"
-              >
-                {{ action.label }}
-              </Button>
+              <Button class="mr-2" @click="openEditModal(manager)">Edit</Button>
+              <Button variant="destructive" @click="deleteManager(manager.id)">Delete</Button>
             </TableCell>
           </TableRow>
         </TableBody>
       </Table>
+
+      <AddManagerModal v-if="showAddModal" @close="showAddModal = false" />
+      <EditManagerModal
+        v-if="showEditModal"
+        :manager="selectedManager"
+        @close="showEditModal = false"
+      />
     </div>
   </AdminAppLayout>
 </template>
