@@ -19,13 +19,23 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     })->name('admin.dashboard');
 });
 
+Route::get('/manager/dashboare',function(){
+    return Inertia::render('ManagerDashboard',[
+        'manager' => true,
+    ]);
+})->middleware(['auth','role:manager'])->name('manager.dashboard');
+
+
 
 
 
 Route::prefix('admin/managers')->middleware(['auth', 'verified'])->group(function () {
     Route::get('/', function () {
        return Inertia::render('Managers/Index');
+    })->name('managers.index');
     });
-    });
+
+
+
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';
