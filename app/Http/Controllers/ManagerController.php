@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
+use Spatie\Permission\Models\Role;
 
 class ManagerController extends Controller
 {
@@ -34,7 +35,7 @@ class ManagerController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
             'national_id' => 'nullable|string|unique:users',
-            'avatar_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validate image
+            'avatar_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'country' => 'nullable|string',
             'gender' => ['nullable', Rule::in(['Male', 'Female'])],
         ]);
@@ -45,18 +46,23 @@ class ManagerController extends Controller
             $avatarPath = $request->file('avatar_image')->store('avatars', 'public');
         }
 
-        User::create([
+        // Create the manager
+        $manager = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => bcrypt($request->password),
             'national_id' => $request->national_id,
             'avatar_image' => $avatarPath,
-            'role' => 'manager',
+            'role' => 'manager', // Set role to 'manager'
             'country' => $request->country,
             'gender' => $request->gender,
         ]);
 
-        return redirect()->route('managers.index')->with('success', 'Manager created successfully.');
+        // Assign the 'manager' role using Spatie
+        $managerRole = Role::findByName('manager');
+        $manager->assignRole($managerRole);
+
+        return redirect()->route('admin.managers.index')->with('success', 'Manager created successfully.');
     }
 
     // Show the form to edit a manager
