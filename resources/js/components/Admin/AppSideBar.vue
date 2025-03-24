@@ -6,15 +6,18 @@ import { User } from 'lucide-vue-next';
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { BookOpen, Folder } from 'lucide-vue-next';
+import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarMenuLink, SidebarMenuLinkButton, SidebarMenuLinkIcon, SidebarMenuLinkText, SidebarMenuLinkTooltip, SidebarGroup, SidebarGroupLabel } from '@/components/ui/sidebar';
 
+import NavMain from '../NavMain.vue';
+import NavFooter from '../NavFooter.vue';
+import NavUser from '../NavUser.vue';
 // Get user data from Inertia.js props
 const page = usePage();
 const user = computed(() => page.props.auth.user);
 
 // Extract user permissions (fallback to empty array if undefined)
 const permissions = computed(() => page.props.auth.user.permissions || []);
-console.log('What user can do', permissions.value.includes('manage_managers'));
-
+console.log('User Permissions:', permissions.value);
 
 const dashboard = {
     title: 'Dashboard',
@@ -70,6 +73,7 @@ const mainNav = computed(() => {
     return items;
 });
 
+
 const footerNavItems: NavItem[] = [
     {
         title: 'Github Repo',
@@ -82,6 +86,7 @@ const footerNavItems: NavItem[] = [
         icon: BookOpen,
     },
 ];
+console.log('Main Nav', mainNav.value);
 </script>
 
 <template>
@@ -91,7 +96,7 @@ const footerNavItems: NavItem[] = [
                 <SidebarMenuItem>
                     <SidebarMenuButton size="lg" as-child>
                         <Link :href="route('admin.dashboard')">
-                            <AppLogo />
+                        <AppLogo />
                         </Link>
                     </SidebarMenuButton>
                 </SidebarMenuItem>

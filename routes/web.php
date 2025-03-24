@@ -19,5 +19,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('admin.dashboard');
 });
 
+
+Route::prefix('admin/managers')->middleware(['auth', 'verified'])->group(function () {
+    Route::get('/', function () {
+       return Inertia::render('Managers/Index');
+    });
+    });
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';
