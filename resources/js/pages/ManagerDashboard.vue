@@ -13,8 +13,8 @@ console.log("User DAta",page.props.auth.user.roles);
 const can = computed(() => page.props.auth.user.permissions || {});
 
 
-// Title based on the user role
-const roleTitle = computed(() => {
+
+const roleName = computed(() => {
     if (user.value.role === 'admin') return 'Admin Dashboard';
     if (user.value.role === 'manager') return 'Manager Dashboard';
     if (user.value.role === 'receptionist') return 'Receptionist Dashboard';
@@ -24,7 +24,7 @@ const roleTitle = computed(() => {
 
 <template>
 
-    <Head :title="roleTitle" />
+    <Head :title="roleName" />
 
     <AdminAppLayout>
 

@@ -19,7 +19,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     })->name('admin.dashboard');
 });
 
-Route::get('/manager/dashboard',function(){
+Route::get('/dashboard/manager',function(){
     return Inertia::render('ManagerDashboard',[
         'manager' => true,
     ]);

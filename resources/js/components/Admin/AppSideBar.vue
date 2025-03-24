@@ -13,7 +13,7 @@ import NavFooter from '../NavFooter.vue';
 import NavUser from '../NavUser.vue';
 // Get user data from Inertia.js props
 const page = usePage();
-const user = computed(() => page.props.auth.user);
+const user = computed(() => page.props.auth.user.roles[0]);
 
 // Extract user permissions (fallback to empty array if undefined)
 const permissions = computed(() => page.props.auth.user.permissions || []);
@@ -21,7 +21,7 @@ console.log('User Permissions:', permissions.value);
 
 const dashboard = {
     title: 'Dashboard',
-    href: '/admin/dashboard',
+    href: `/${user.value}/dashboard`,
     icon: User,
 };
 
@@ -31,42 +31,42 @@ const mainNav = computed(() => {
     if (permissions.value.includes('manage_managers')) {
         items.push({
             title: 'Manage Managers',
-            href: '/admin/managers',
+            href: `/${user.value}/managers`,
             icon: User,
         });
     }
     if (permissions.value.includes('manage_receptionists')) {
         items.push({
             title: 'Manage Receptionists',
-            href: '/admin/receptionists',
+            href: `/${user.value}/receptionists`,
             icon: User,
         });
     }
     if (permissions.value.includes('manage_clients')) {
         items.push({
             title: 'Manage Clients',
-            href: '/admin/clients',
+            href: `/${user.value}/clients`,
             icon: User,
         });
     }
     if (permissions.value.includes('manage_floors')) {
         items.push({
             title: 'Manage Floors',
-            href: '/admin/floors',
+            href: `/${user.value}/floors`,
             icon: User,
         });
     }
     if (permissions.value.includes('manage_rooms')) {
         items.push({
             title: 'Manage Rooms',
-            href: '/admin/rooms',
+            href: `/${user.value}/rooms`,
             icon: User,
         });
     }
     if (permissions.value.includes('view_reports')) {
         items.push({
             title: 'View Reports',
-            href: '/admin/reports',
+            href: `/${user.value}/reports`,
             icon: User,
         });
     }
