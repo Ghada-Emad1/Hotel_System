@@ -25,6 +25,8 @@ class User extends Authenticatable
         'role',
         'national_id',
         'avatar_image',
+        'gender',
+        'country',
         'email_verified_at',
     ];
 
