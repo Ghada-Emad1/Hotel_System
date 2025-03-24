@@ -27,6 +27,6 @@ const roleTitle = computed(() => {
     <Head :title="roleTitle" />
 
     <AdminAppLayout>
-        
+
     </AdminAppLayout>
 </template>
