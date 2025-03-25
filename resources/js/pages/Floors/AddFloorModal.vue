@@ -2,15 +2,14 @@
 import { useForm } from '@inertiajs/vue3';
 
 const emit = defineEmits(['close']);
-
 const form = useForm({ name: '' });
 
 const submit = () => {
-  form.post(route('floors.store'), {
+  form.post(route('floor.store'), {
     onSuccess: () => {
       emit('close');
-      form.reset();
-    }
+      location.reload();
+    },
   });
 };
 </script>

@@ -31,7 +31,7 @@ const submit = () => {
         </div>
         <div>
           <label class="block mb-1 font-medium">Room Number</label>
-          <input :value="room.number" disabled type="text" class="w-full border rounded px-3 py-2 bg-gray-100" />
+          <input :value="props.room.number" disabled type="text" class="w-full border rounded px-3 py-2 bg-gray-100" />
         </div>
         <div>
           <label class="block mb-1 font-medium">Capacity</label>

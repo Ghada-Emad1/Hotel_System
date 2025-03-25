@@ -32,14 +32,18 @@ class ManagerController extends Controller
         $data = $request->validated();
         $data['password'] = Hash::make($data['password']);
 
-        // رفع الصورة
+        // Upload avatar image
         if ($request->hasFile('avatar_image')) {
             $file = $request->file('avatar_image');
             $filename = time() . '_' . $file->getClientOriginalName();
-            $file->storeAs('public/avatars', $filename);
+
+
+            $file->storeAs('avatars', $filename, 'public');
+
+
             $data['avatar_image'] = $filename;
         } else {
-            $data['avatar_image'] = 'default.png'; // صورة افتراضية
+            $data['avatar_image'] = 'avatar.png';
         }
 
         $data['role'] = 'manager';
@@ -50,22 +54,20 @@ class ManagerController extends Controller
         return redirect()->route('manager.index')->with('success', 'Manager created successfully.');
     }
 
+
     public function update(UpdateManagerRequest $request, User $manager)
     {
         $data = $request->validated();
-
         unset($data['national_id']);
 
         if ($request->hasFile('avatar_image')) {
-            if ($manager->avatar_image && $manager->avatar_image !== 'default.png' && Storage::exists('public/avatars/' . $manager->avatar_image)) {
+            if ($manager->avatar_image && $manager->avatar_image !== 'avatar.png' && Storage::exists('public/avatars/' . $manager->avatar_image)) {
                 Storage::delete('public/avatars/' . $manager->avatar_image);
             }
 
             $filename = time() . '_' . $request->file('avatar_image')->getClientOriginalName();
             $request->file('avatar_image')->storeAs('public/avatars', $filename);
             $data['avatar_image'] = $filename;
-        } else {
-            unset($data['avatar_image']);
         }
 
         $manager->update($data);
@@ -75,7 +77,7 @@ class ManagerController extends Controller
 
     public function destroy(User $manager)
     {
-        if ($manager->avatar_image && $manager->avatar_image !== 'default.png' && Storage::exists('public/avatars/' . $manager->avatar_image)) {
+        if ($manager->avatar_image && $manager->avatar_image !== 'avatar.png' && Storage::exists('public/avatars/' . $manager->avatar_image)) {
             Storage::delete('public/avatars/' . $manager->avatar_image);
         }
 
@@ -83,4 +85,5 @@ class ManagerController extends Controller
 
         return back()->with('success', 'Manager deleted successfully.');
     }
+
 }

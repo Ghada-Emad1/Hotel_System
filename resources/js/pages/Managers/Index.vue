@@ -32,9 +32,17 @@ const openEditModal = (manager) => {
 
 const deleteManager = (id) => {
   if (confirm('Are you sure you want to delete this manager?')) {
-    router.delete(route('managers.destroy', id));
+    router.delete(route('manager.destroy', { manager: id }), {
+      onSuccess: () => {
+        console.log('Manager deleted successfully');
+      },
+      onError: (errors) => {
+        console.error('Error deleting manager:', errors);
+      }
+    });
   }
 };
+
 </script>
 
 <template>

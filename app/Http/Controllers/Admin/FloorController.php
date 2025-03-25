@@ -16,26 +16,21 @@ class FloorController extends Controller
         $user = auth()->user();
         $query = Floor::query()->with('manager:id,name');
 
-        if ($user->hasRole('manager')) {
-            $query->where('manager_id', $user->id);
-        }
-
-        $floors = $query->get();
-
         return Inertia::render('Floors/Index', [
-            'floors' => $floors,
-            'isAdmin' => $user->hasRole('admin'),
+            'floors' => $query->get(),
             'userId' => $user->id,
+            'isAdmin' => $user->hasRole('admin'),
         ]);
     }
 
     public function store(StoreFloorRequest $request)
     {
-        $nextNumber = max(1000, (Floor::max('number') ?? 999) + 1);
+        $latestFloor = Floor::latest()->first();
+        $newFloorNumber = $latestFloor ? $latestFloor->number + 1 : 1000; // يبدأ الترقيم من 1000
 
         Floor::create([
             'name' => $request->name,
-            'number' => $nextNumber,
+            'number' => $newFloorNumber,
             'manager_id' => auth()->id(),
         ]);
 
@@ -44,27 +39,31 @@ class FloorController extends Controller
 
     public function update(UpdateFloorRequest $request, Floor $floor)
     {
-        if (auth()->id() !== $floor->manager_id && auth()->user()->hasRole('manager')) {
+        if (auth()->id() !== $floor->manager_id && !auth()->user()->hasRole('admin')) {
             abort(403);
         }
 
-        $floor->update($request->validated());
+        $floor->update([
+            'name' => $request->name,
+        ]);
 
         return redirect()->route('floor.index')->with('success', 'Floor updated successfully.');
     }
 
     public function destroy(Floor $floor)
     {
-        if (Room::where('floor_id', $floor->id)->exists()) {
-            return back()->with('error', 'Cannot delete this floor because it has rooms.');
+        if ($floor->rooms()->exists()) {
+            return back()->with('error', 'Cannot delete this floor because it has associated rooms.');
         }
 
-        if (auth()->id() !== $floor->manager_id && auth()->user()->hasRole('manager')) {
+        if (auth()->id() !== $floor->manager_id && !auth()->user()->hasRole('admin')) {
             abort(403);
         }
 
         $floor->delete();
 
-        return back()->with('success', 'Floor deleted.');
+        return back()->with('success', 'Floor deleted successfully.');
     }
+
+
 }

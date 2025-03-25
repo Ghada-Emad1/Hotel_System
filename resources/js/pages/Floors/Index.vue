@@ -3,10 +3,11 @@ import { ref } from 'vue';
 import { useForm } from '@inertiajs/vue3';
 import AddFloorModal from './AddFloorModal.vue';
 import EditFloorModal from './EditFloorModal.vue';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AdminAppLayout from '@/layouts/AdminAppLayout.vue';
-
 const props = defineProps({
   floors: Array,
+  userId: Number,
   isAdmin: Boolean,
 });
 
@@ -19,13 +20,17 @@ const openEditModal = (floor) => {
 
 const deleteFloor = (floorId) => {
   if (confirm('Are you sure you want to delete this floor?')) {
-    useForm().delete(route('floors.destroy', floorId));
+    useForm().delete(route('floor.destroy', floorId));
   }
+};
+
+const canModifyFloor = (floor) => {
+  return props.isAdmin || floor.manager_id === props.userId;
 };
 </script>
 
 <template>
- <AdminAppLayout>
+    <AdminAppLayout>
   <div class="p-6">
     <h1 class="text-2xl font-bold mb-4">Manage Floors</h1>
 
@@ -33,30 +38,32 @@ const deleteFloor = (floorId) => {
       Add Floor
     </button>
 
-    <table class="w-full border">
-      <thead class="bg-gray-100">
-        <tr>
-          <th class="p-2">Name</th>
-          <th class="p-2">Number</th>
-          <th v-if="isAdmin" class="p-2">Manager</th>
-          <th class="p-2">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="floor in floors" :key="floor.id">
-          <td class="p-2">{{ floor.name }}</td>
-          <td class="p-2">{{ floor.number }}</td>
-          <td v-if="isAdmin" class="p-2">{{ floor.manager?.name }}</td>
-          <td class="p-2 space-x-2">
-            <button class="text-blue-600" @click="openEditModal(floor)">Edit</button>
+    <Table class="border">
+      <TableHeader>
+        <TableRow>
+          <TableHead>Name</TableHead>
+          <TableHead>Number</TableHead>
+          <TableHead v-if="isAdmin">Manager</TableHead>
+          <TableHead v-if="isAdmin || floors.some(floor => floor.manager_id === userId)">Actions</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        <TableRow v-for="floor in floors" :key="floor.id">
+          <TableCell>{{ floor.name }}</TableCell>
+          <TableCell>{{ floor.number }}</TableCell>
+          <TableCell v-if="isAdmin">
+            {{ floor.manager ? floor.manager.name : 'Admin' }}
+          </TableCell>
+          <TableCell v-if="canModifyFloor(floor)">
+            <button class="text-blue-600 mr-2" @click="openEditModal(floor)">Edit</button>
             <button class="text-red-600" @click="deleteFloor(floor.id)">Delete</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+          </TableCell>
+        </TableRow>
+      </TableBody>
+    </Table>
 
     <AddFloorModal v-if="showAddModal" @close="showAddModal = false" />
     <EditFloorModal v-if="selectedFloor" :floor="selectedFloor" @close="selectedFloor = null" />
   </div>
-  </AdminAppLayout> 
+</AdminAppLayout>
 </template>

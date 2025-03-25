@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
@@ -13,21 +12,18 @@ use Inertia\Inertia;
 class RoomController extends Controller
 {
     public function index()
-    {
-        $user = auth()->user();
-        $query = Room::query()->with('floor:id,name', 'manager:id,name');
+{
+    $user = auth()->user();
+    $query = Room::query()->with('floor:id,name', 'manager:id,name');
 
-        if ($user->hasRole('manager')) {
-            $query->where('manager_id', $user->id);
-        }
+    return Inertia::render('Rooms/Index', [
+        'rooms' => $query->get(),
+        'floors' => Floor::select('id', 'name')->get(),
+        'isAdmin' => $user->hasRole('admin'),
+        'userId' => $user->id,
+    ]);
+}
 
-        return Inertia::render('Rooms/Index', [
-            'rooms' => $query->get(),
-            'floors' => Floor::select('id', 'name')->get(),
-            'isAdmin' => $user->hasRole('admin'),
-            'userId' => $user->id,
-        ]);
-    }
 
     public function store(StoreRoomRequest $request)
     {

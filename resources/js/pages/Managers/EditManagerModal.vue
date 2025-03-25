@@ -1,6 +1,6 @@
 <script setup>
 import { useForm } from '@inertiajs/vue3';
-import { watch, ref } from 'vue';
+import { ref } from 'vue';
 
 const props = defineProps({ manager: Object });
 const emit = defineEmits(['close']);
@@ -14,20 +14,21 @@ const form = useForm({
   _method: 'PUT',
 });
 
-const previewUrl = ref(
-  props.manager.avatar_image
-    ? `/storage/avatars/${props.manager.avatar_image}`
-    : '/storage/avatars/default.png'
-);
+const storedImage = props.manager.avatar_image
+  ? `/storage/avatars/${props.manager.avatar_image}`
+  : '/storage/avatars/default.png';
 
-watch(() => form.avatar_image, (file) => {
-  if (file && typeof file !== 'string') {
-    previewUrl.value = URL.createObjectURL(file);
+const previewUrl = ref(storedImage);
+
+const handleFileChange = (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    form.avatar_image = file;
   }
-});
+};
 
 const submit = () => {
-  form.post(route('managers.update', props.manager.id), {
+  form.post(route('manager.update', props.manager.id), {
     forceFormData: true,
     onSuccess: () => emit('close'),
   });
@@ -40,7 +41,7 @@ const submit = () => {
       <h2 class="text-xl font-bold">Edit Manager</h2>
 
       <div>
-        <img :src="previewUrl" class="w-20 h-20 rounded-full object-cover mb-2" />
+        <img :src="storedImage" class="w-20 h-20 rounded-full object-cover mb-2" />
       </div>
 
       <form @submit.prevent="submit" class="space-y-4">
@@ -60,7 +61,7 @@ const submit = () => {
         </div>
         <div>
           <label class="block font-medium mb-1">Avatar Image</label>
-          <input type="file" @change="form.avatar_image = $event.target.files[0]" />
+          <input type="file" @change="handleFileChange" />
           <p class="text-sm text-red-500">{{ form.errors.avatar_image }}</p>
         </div>
         <div>
