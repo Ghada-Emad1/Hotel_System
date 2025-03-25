@@ -73,7 +73,7 @@ const mainNav = computed(() => {
          if (permissions.value.includes('approve_clients')) {
         items.push({
             title: 'approve clients',
-            href: `/${user.value}/clients`,
+            href: `/${user.value}/approve_clients`,
             icon: User,
         });
     }
@@ -81,15 +81,15 @@ const mainNav = computed(() => {
     
     if (permissions.value.includes('My_Approved_client')) {
         items.push({
-            title: 'Approved Clients',
-            href: `/${user.value}/clients`,
+            title: 'My Approved Clients',
+            href: `/${user.value}/My_approved_clients`,
             icon: User,
         });
     }
          if (permissions.value.includes('client_reservations')) {
         items.push({
             title: 'Client Reservations',
-            href: `/${user.value}/clients`,
+            href: `/${user.value}/client_reservations`,
             icon: User,
         });
     }

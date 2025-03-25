@@ -42,7 +42,7 @@ class ClientController extends Controller
             $data['avatar_image'] = 'default.png'; // صورة افتراضية
         }
 
-        $data['role'] = 'receptionist';
+        // $data['role'] = 'client';
 
         $user = User::create($data);
         $user->assignRole('client');
@@ -83,5 +83,29 @@ class ClientController extends Controller
 
         return back()->with('success', 'Receptionist deleted successfully.');
     }
-   
+       
+    public function pending()
+    {
+        $pendingClients = User::role('client')
+            ->where('is_approved', false) // Fetch clients who are not approved
+            ->select(['id', 'name', 'email', 'national_id', 'country', 'gender', 'created_at'])
+            ->latest()
+            ->get();
+    
+        return Inertia::render('Receptionists/ManageClients', [
+            'clients' => $pendingClients,
+        ]);
+    }
+
+    public function approve(User $user)
+    {
+        if (!$user->hasRole('client')) {
+            return back()->with('error', 'Only clients can be approved.');
+        }
+
+        // Approve the client
+        $user->update(['is_approved' => true]);
+
+        return back()->with('success', 'Client approved successfully.');
+    }
 }
