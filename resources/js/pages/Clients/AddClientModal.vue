@@ -1,4 +1,3 @@
-
 <script setup>
 import { useForm } from '@inertiajs/vue3';
 
@@ -15,7 +14,7 @@ const form = useForm({
 });
 
 const submit = () => {
-  form.post(route('receptionist.store'), {
+  form.post(route('client.store'), {
     forceFormData: true,
     onSuccess: () => emit('close'),
   });
@@ -26,7 +25,7 @@ const submit = () => {
   <div class="fixed inset-0 bg-gray-800/60 z-50 flex justify-center items-center">
     <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto space-y-4">
 
-      <h2 class="text-xl font-bold">Add Receptionist</h2>
+      <h2 class="text-xl font-bold">Add Manager</h2>
 
       <form @submit.prevent="submit" class="space-y-4">
         <div>

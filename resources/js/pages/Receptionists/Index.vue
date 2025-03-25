@@ -1,8 +1,8 @@
 <script setup>
 import AdminAppLayout from '@/layouts/AdminAppLayout.vue';
-import { Head, router } from '@inertiajs/vue3';
+import { Head, router, usePage } from '@inertiajs/vue3';
 import { ref } from 'vue';
-
+import { computed, defineProps } from 'vue';
 import { Button } from '@/components/ui/button';
 import {
   Table,
@@ -15,7 +15,10 @@ import {
 
 import AddReceptionistModal from './AddReceptionistModal.vue';
 import EditReceptionist from './EditReceptionist.vue';
-
+const page = usePage();
+const user = computed(() => page.props.auth.user.roles[0]);
+console.log(user.value);
+const permissions = computed(() => page.props.auth.user.permissions || []);
 const props = defineProps({
   receptionists: Array,
 });
@@ -34,7 +37,20 @@ const deleteReceptionist = (id) => {
     router.delete(route('receptionist.destroy', id));
   }
 };
+
+const banReceptionist = (id) => {
+  if (confirm('Are you sure you want to ban this receptionist?')) {
+    router.post(route('receptionist.ban', id));
+  }
+};
+
+const unbanReceptionist = (id) => {
+  if (confirm('Are you sure you want to unban this receptionist?')) {
+    router.post(route('receptionist.unban', id));
+  }
+};
 </script>
+
 <template>
   <Head title="Manage Receptionists" />
 
@@ -65,7 +81,11 @@ const deleteReceptionist = (id) => {
             <TableCell>{{ receptionist.gender }}</TableCell>
             <TableCell>
               <Button class="mr-2" @click="openEditModal(receptionist)">Edit</Button>
-              <Button variant="destructive" @click="deleteReceptionist(receptionist.id)">Delete</Button>
+              <Button variant="destructive" class="mr-2" @click="deleteReceptionist(receptionist.id)">Delete</Button>
+              <template v-if="user.value === 'receptionist'">
+                <Button v-if="!receptionist.is_banned" variant="warning" @click="banReceptionist(receptionist.id)">Ban</Button>
+                <Button v-else variant="success" @click="unbanReceptionist(receptionist.id)">Unban</Button>
+              </template>
             </TableCell>
           </TableRow>
         </TableBody>

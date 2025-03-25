@@ -39,7 +39,7 @@ class RoomController extends Controller
             'manager_id' => auth()->id(),
         ]);
 
-        return redirect()->route('rooms.index')->with('success', 'Room created successfully.');
+        return redirect()->route('room.index')->with('success', 'Room created successfully.');
     }
 
     public function update(UpdateRoomRequest $request, Room $room)
@@ -54,7 +54,7 @@ class RoomController extends Controller
             'price' => $request->price * 100,
         ]);
 
-        return redirect()->route('rooms.index')->with('success', 'Room updated successfully.');
+        return redirect()->route('room.index')->with('success', 'Room updated successfully.');
     }
 
     public function destroy(Room $room)

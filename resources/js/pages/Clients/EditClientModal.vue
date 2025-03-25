@@ -1,21 +1,33 @@
-
 <script setup>
 import { useForm } from '@inertiajs/vue3';
+import { watch, ref } from 'vue';
 
+const props = defineProps({ client: Object });
 const emit = defineEmits(['close']);
 
 const form = useForm({
-  name: '',
-  email: '',
-  password: '',
-  national_id: '',
+  name: props.client.name,
+  email: props.client.email,
   avatar_image: null,
-  country: '',
-  gender: '',
+  country: props.client.country,
+  gender: props.client.gender,
+  _method: 'PUT',
+});
+
+const previewUrl = ref(
+  props.client.avatar_image
+    ? `/storage/avatars/${props.client.avatar_image}`
+    : '/storage/avatars/default.png'
+);
+
+watch(() => form.avatar_image, (file) => {
+  if (file && typeof file !== 'string') {
+    previewUrl.value = URL.createObjectURL(file);
+  }
 });
 
 const submit = () => {
-  form.post(route('receptionist.store'), {
+  form.post(route('client.update', props.client.id), {
     forceFormData: true,
     onSuccess: () => emit('close'),
   });
@@ -24,9 +36,12 @@ const submit = () => {
 
 <template>
   <div class="fixed inset-0 bg-gray-800/60 z-50 flex justify-center items-center">
-    <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto space-y-4">
+    <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-xl space-y-4">
+      <h2 class="text-xl font-bold">Edit Client</h2>
 
-      <h2 class="text-xl font-bold">Add Receptionist</h2>
+      <div>
+        <img :src="previewUrl" class="w-20 h-20 rounded-full object-cover mb-2" />
+      </div>
 
       <form @submit.prevent="submit" class="space-y-4">
         <div>
@@ -40,14 +55,8 @@ const submit = () => {
           <p class="text-sm text-red-500">{{ form.errors.email }}</p>
         </div>
         <div>
-          <label class="block font-medium mb-1">Password</label>
-          <input v-model="form.password" type="password" class="w-full border rounded px-3 py-2" />
-          <p class="text-sm text-red-500">{{ form.errors.password }}</p>
-        </div>
-        <div>
           <label class="block font-medium mb-1">National ID</label>
-          <input v-model="form.national_id" type="text" class="w-full border rounded px-3 py-2" />
-          <p class="text-sm text-red-500">{{ form.errors.national_id }}</p>
+          <input :value="props.client.national_id" disabled type="text" class="w-full border rounded px-3 py-2 bg-gray-100" />
         </div>
         <div>
           <label class="block font-medium mb-1">Avatar Image</label>
@@ -69,7 +78,7 @@ const submit = () => {
 
         <div class="flex justify-end gap-3 mt-4">
           <button @click="emit('close')" type="button" class="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400">Cancel</button>
-          <button type="submit" class="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700">Save</button>
+          <button type="submit" class="px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700">Update</button>
         </div>
       </form>
     </div>

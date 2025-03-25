@@ -11,20 +11,20 @@ use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Models\Role;
 use Inertia\Inertia;
 
-class ManagerController extends Controller
+class ClientController extends Controller
 {
     public function index()
     {
-        $managers = User::role('manager')->get();
+        $clients = User::role('client')->get();
 
-        return Inertia::render('Managers/Index', [
-            'managers' => $managers,
+        return Inertia::render('Clients/Index', [
+            'clients' => $clients,
         ]);
     }
 
     public function create()
     {
-        return Inertia::render('Managers/Create');
+        return Inertia::render('Clients/Create');
     }
 
     public function store(StoreManagerRequest $request)
@@ -42,23 +42,23 @@ class ManagerController extends Controller
             $data['avatar_image'] = 'default.png'; // صورة افتراضية
         }
 
-        $data['role'] = 'manager';
+        $data['role'] = 'receptionist';
 
         $user = User::create($data);
-        $user->assignRole('manager');
+        $user->assignRole('client');
 
-        return redirect()->route('manager.index')->with('success', 'Manager created successfully.');
+        return redirect()->route('client.index')->with('success', 'Client created successfully.');
     }
 
-    public function update(UpdateManagerRequest $request, User $manager)
+    public function update(UpdateManagerRequest $request, User $client)
     {
         $data = $request->validated();
 
         unset($data['national_id']);
 
         if ($request->hasFile('avatar_image')) {
-            if ($manager->avatar_image && $manager->avatar_image !== 'default.png' && Storage::exists('public/avatars/' . $manager->avatar_image)) {
-                Storage::delete('public/avatars/' . $manager->avatar_image);
+            if ($client->avatar_image && $client->avatar_image !== 'default.png' && Storage::exists('public/avatars/' . $client->avatar_image)) {
+                Storage::delete('public/avatars/' . $client->avatar_image);
             }
 
             $filename = time() . '_' . $request->file('avatar_image')->getClientOriginalName();
@@ -68,19 +68,20 @@ class ManagerController extends Controller
             unset($data['avatar_image']);
         }
 
-        $manager->update($data);
+        $client->update($data);
 
-        return redirect()->route('manager.index')->with('success', 'Manager updated successfully.');
+        return redirect()->route('client.index')->with('success', 'Receptionist updated successfully.');
     }
 
-    public function destroy(User $manager)
+    public function destroy(User $client)
     {
-        if ($manager->avatar_image && $manager->avatar_image !== 'default.png' && Storage::exists('public/avatars/' . $manager->avatar_image)) {
-            Storage::delete('public/avatars/' . $manager->avatar_image);
+        if ($client->avatar_image && $client->avatar_image !== 'default.png' && Storage::exists('public/avatars/' . $client->avatar_image)) {
+            Storage::delete('public/avatars/' . $client->avatar_image);
         }
 
-        $manager->delete();
+        $client->delete();
 
-        return back()->with('success', 'Manager deleted successfully.');
+        return back()->with('success', 'Receptionist deleted successfully.');
     }
+   
 }

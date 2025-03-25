@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\Admin\ManagerController;
 use App\Http\Controllers\Admin\ReceptionistController;
-use App\Http\Controllers\ClientController;
+use App\Http\Controllers\Admin\ClientController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\Admin\FloorController;
@@ -30,10 +30,10 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
 
 Route::prefix('admin/managers')->middleware(['auth', 'verified'])->group(function () {
-    Route::get('/', [ManagerController::class, 'index'])->name('managers.index');
-    Route::post('store', [ManagerController::class, 'store'])->name('managers.store');
-    Route::put('{manager}/update', [ManagerController::class, 'update'])->name('managers.update');
-    Route::delete('{manager}/destroy', [ManagerController::class, 'destroy'])->name('managers.destroy');
+    Route::get('/', [ManagerController::class, 'index'])->name('manager.index');
+    Route::post('store', [ManagerController::class, 'store'])->name('manager.store');
+    Route::put('{manager}/update', [ManagerController::class, 'update'])->name('manager.update');
+    Route::delete('{manager}/destroy', [ManagerController::class, 'destroy'])->name('manager.destroy');
 });
 
 Route::prefix('admin/receptionists')->middleware(['auth', 'verified'])->group(function () {
@@ -54,13 +54,21 @@ Route::prefix('admin/clients')->middleware(['auth', 'verified'])->group(function
     Route::delete('{client}/destroy', [ClientController::class, 'destroy'])->name('client.destroy');
 });
 
+
+
 Route::prefix('admin/floors')->middleware(['auth', 'verified'])->group(function () {
-    Route::get('/', [ClientController::class, 'index'])->name('floor.index');
-    Route::get('create', [ClientController::class, 'create'])->name('floor.create');
-    Route::post('store', [ClientController::class, 'store'])->name('floor.store');
-    Route::get('{floor}/edit', [ClientController::class, 'edit'])->name('floor.edit');
-    Route::put('{floor}/update', [ClientController::class, 'update'])->name('floor.update');
-    Route::delete('{floor}/destroy', [ClientController::class, 'destroy'])->name('floor.destroy');
+    Route::get('/', [FloorController::class, 'index'])->name('floor.index');
+    Route::get('create', [FloorController::class, 'create'])->name('floor.create');
+    Route::post('store', [FloorController::class, 'store'])->name('floor.store');
+    Route::get('{floor}/edit', [FloorController::class, 'edit'])->name('floor.edit');
+    Route::put('{floor}/update', [FloorController::class, 'update'])->name('floor.update');
+    Route::delete('{floor}/destroy', [FloorController::class, 'destroy'])->name('floor.destroy');
+});
+Route::middleware(['auth', 'verified', 'role:admin|manager'])->prefix('admin/rooms')->name('room.')->group(function () {
+    Route::get('/', [RoomController::class, 'index'])->name('index');
+    Route::post('/store', [RoomController::class, 'store'])->name('store');
+    Route::put('/{room}/update', [RoomController::class, 'update'])->name('update');
+    Route::delete('/{room}/destroy', [RoomController::class, 'destroy'])->name('destroy');
 });
 
 Route::middleware(['auth', 'role:manager'])->group(function () {
@@ -78,14 +86,14 @@ Route::middleware(['auth', 'role:receptionist'])->group(function () {
     })->name('receptionist.dashboard');
 });
 
-Route::middleware(['auth', 'verified', 'role:admin|manager'])->prefix('admin/floors')->name('floors.')->group(function () {
+Route::middleware(['auth', 'verified', 'role:admin|manager'])->prefix('manager/floors')->name('floors.')->group(function () {
     Route::get('/', [FloorController::class, 'index'])->name('index');
     Route::post('/store', [FloorController::class, 'store'])->name('store');
     Route::put('/{floor}/update', [FloorController::class, 'update'])->name('update');
     Route::delete('/{floor}/destroy', [FloorController::class, 'destroy'])->name('destroy');
 });
 
-Route::middleware(['auth', 'verified', 'role:admin|manager'])->prefix('admin/rooms')->name('rooms.')->group(function () {
+Route::middleware(['auth', 'verified', 'role:admin|manager'])->prefix('manager/rooms')->name('rooms.')->group(function () {
     Route::get('/', [RoomController::class, 'index'])->name('index');
     Route::post('/store', [RoomController::class, 'store'])->name('store');
     Route::put('/{room}/update', [RoomController::class, 'update'])->name('update');

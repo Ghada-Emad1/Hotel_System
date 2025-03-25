@@ -83,4 +83,18 @@ class ReceptionistController extends Controller
 
         return back()->with('success', 'Receptionist deleted successfully.');
     }
+    public function ban(User $receptionist)
+    {
+        $receptionist->update(['is_banned' => true]);
+
+        return back()->with('success', 'Receptionist banned successfully.');
+    }
+
+    public function unban(User $receptionist)
+    {
+        $receptionist->update(['is_banned' => false]);
+
+        return back()->with('success', 'Receptionist unbanned successfully.');
+    }
+
 }
