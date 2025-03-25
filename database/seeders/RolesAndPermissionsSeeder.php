@@ -26,6 +26,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'manage_rooms',
             'approve_clients',
             'make_reservations',
+            'client_reservations',
+            'My_Approved_client',
             'view_reports',
         ];
 
@@ -50,13 +52,15 @@ class RolesAndPermissionsSeeder extends Seeder
             'manage_receptionists',
             'manage_floors',
             'manage_rooms',
-            'manage_client',
             'view_reports',
         ]);
 
         $receptionistRole = Role::firstOrCreate(['name' => 'receptionist']);
         $receptionistRole->syncPermissions([
             'approve_clients',
+            'manage_clients',
+            'client_reservations',
+            'My_Approved_client'
         ]);
 
         $clientRole = Role::firstOrCreate(['name' => 'client']);
