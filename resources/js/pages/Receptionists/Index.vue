@@ -1,8 +1,7 @@
 <script setup>
 import AdminAppLayout from '@/layouts/AdminAppLayout.vue';
 import { Head, router, usePage } from '@inertiajs/vue3';
-import { ref } from 'vue';
-import { computed, defineProps } from 'vue';
+import { ref, computed, defineProps } from 'vue';
 import { Button } from '@/components/ui/button';
 import {
   Table,
@@ -15,10 +14,11 @@ import {
 
 import AddReceptionistModal from './AddReceptionistModal.vue';
 import EditReceptionist from './EditReceptionist.vue';
+
 const page = usePage();
 const user = computed(() => page.props.auth.user.roles[0]);
-console.log(user.value);
-const permissions = computed(() => page.props.auth.user.permissions || []);
+console.log('User Role:', user.value);
+
 const props = defineProps({
   receptionists: Array,
 });
@@ -34,19 +34,39 @@ const openEditModal = (receptionist) => {
 
 const deleteReceptionist = (id) => {
   if (confirm('Are you sure you want to delete this receptionist?')) {
-    router.delete(route('receptionist.destroy', id));
+    router.delete(route('receptionist.destroy', id), {
+      onSuccess: () => {
+        props.receptionists = props.receptionists.filter(r => r.id !== id);
+      }
+    });
   }
 };
 
 const banReceptionist = (id) => {
   if (confirm('Are you sure you want to ban this receptionist?')) {
-    router.post(route('receptionist.ban', id));
+    router.post(route('receptionist.ban', id), {
+      onSuccess: () => {
+        // Update the receptionist's is_banned status
+        const receptionist = props.receptionists.find(r => r.id === id);
+        if (receptionist) {
+          receptionist.is_banned = true;
+        }
+      }
+    });
   }
 };
 
 const unbanReceptionist = (id) => {
   if (confirm('Are you sure you want to unban this receptionist?')) {
-    router.post(route('receptionist.unban', id));
+    router.post(route('receptionist.unban', id), {
+      onSuccess: () => {
+        // Update the receptionist's is_banned status
+        const receptionist = props.receptionists.find(r => r.id === id);
+        if (receptionist) {
+          receptionist.is_banned = false;
+        }
+      }
+    });
   }
 };
 </script>
@@ -82,7 +102,7 @@ const unbanReceptionist = (id) => {
             <TableCell>
               <Button class="mr-2" @click="openEditModal(receptionist)">Edit</Button>
               <Button variant="destructive" class="mr-2" @click="deleteReceptionist(receptionist.id)">Delete</Button>
-              <template v-if="user.value === 'receptionist'">
+              <template v-if="user=== 'manager'">
                 <Button v-if="!receptionist.is_banned" variant="warning" @click="banReceptionist(receptionist.id)">Ban</Button>
                 <Button v-else variant="success" @click="unbanReceptionist(receptionist.id)">Unban</Button>
               </template>

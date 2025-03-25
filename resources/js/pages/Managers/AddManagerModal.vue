@@ -14,7 +14,7 @@ const form = useForm({
 });
 
 const submit = () => {
-  form.post(route('managers.store'), {
+  form.post(route('manager.store'), {
     forceFormData: true,
     onSuccess: () => emit('close'),
   });

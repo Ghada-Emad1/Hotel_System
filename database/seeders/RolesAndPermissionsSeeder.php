@@ -50,6 +50,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'manage_receptionists',
             'manage_floors',
             'manage_rooms',
+            'manage_client',
             'view_reports',
         ]);
 
