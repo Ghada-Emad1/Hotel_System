@@ -85,6 +85,17 @@ Route::prefix('admin/clients')->middleware(['auth', 'verified'])->group(function
 
 
 
+Route::prefix('receptionist/clients')->middleware(['auth', 'verified'])->group(function () {
+    Route::get('/', [ClientController::class, 'index'])->name('client.index');
+    Route::get('create', [ClientController::class, 'create'])->name('client.create');
+    Route::post('store', [ClientController::class, 'store'])->name('client.store');
+    Route::get('{client}/edit', [ClientController::class, 'edit'])->name('client.edit');
+    Route::put('{client}/update', [ClientController::class, 'update'])->name('client.update');
+    Route::delete('{client}/destroy', [ClientController::class, 'destroy'])->name('client.destroy');
+});
+
+
+
 Route::prefix('admin/floors')->middleware(['auth', 'verified'])->group(function () {
     Route::get('/', [FloorController::class, 'index'])->name('floor.index');
     Route::get('create', [FloorController::class, 'create'])->name('floor.create');
