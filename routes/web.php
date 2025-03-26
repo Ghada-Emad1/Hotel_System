@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\ManagerController;
 use App\Http\Controllers\Admin\ReceptionistController;
 use App\Http\Controllers\Admin\ClientController;
+
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\Admin\FloorController;
@@ -108,6 +109,19 @@ Route::middleware(['auth', 'verified', 'role:admin|manager'])->prefix('admin/roo
     Route::delete('/{room}/destroy', [RoomController::class, 'destroy'])->name('destroy');
 });
 
+
+Route::middleware(['auth', 'verified', 'role:receptionist'])->prefix('receptionist/clients')->name('client.')->group(function () {
+    Route::get('/', [ClientController::class, 'index'])->name('index');
+    Route::get('create', [ClientController::class, 'create'])->name('create');
+    
+    Route::post('/store', [ClientController::class, 'store'])->name('store');
+    Route::get('pending', [ClientController::class, 'pending'])->name('pending');
+    Route::post('{client}/approve', [ClientController::class, 'approve'])->name('approve');
+    Route::get('{client}/edit', [ClientController::class, 'edit'])->name('edit');
+    Route::put('{client}/update', [ClientController::class, 'update'])->name('update');
+    Route::delete('{client}/destroy', [ClientController::class, 'destroy'])->name('destroy');
+});
+
 Route::middleware(['auth', 'role:manager'])->group(function () {
     Route::get('manager/dashboard', function () {
         return Inertia::render('ManagerDashboard', [
@@ -123,12 +137,7 @@ Route::middleware(['auth', 'role:receptionist'])->group(function () {
     })->name('receptionist.dashboard');
 });
 
-// Route::middleware(['auth', 'verified', 'role:admin|manager'])->prefix('manager/floors')->name('floors.')->group(function () {
-//     Route::get('/', [FloorController::class, 'index'])->name('index');
-//     Route::post('/store', [FloorController::class, 'store'])->name('store');
-//     Route::put('/{floor}/update', [FloorController::class, 'update'])->name('update');
-//     Route::delete('/{floor}/destroy', [FloorController::class, 'destroy'])->name('destroy');
-// });
+
 
 Route::middleware(['auth', 'verified', 'role:admin|manager'])->prefix('manager/rooms')->name('rooms.')->group(function () {
     Route::get('/', [RoomController::class, 'index'])->name('index');

@@ -1,7 +1,7 @@
 <!-- resources/js/Pages/Admin/Managers/Index.vue -->
 <script setup>
 import AdminAppLayout from '@/layouts/AdminAppLayout.vue';
-import { Head, router } from '@inertiajs/vue3';
+import { Head, router, usePage } from '@inertiajs/vue3';
 import { ref } from 'vue';
 
 import { Button } from '@/components/ui/button';
@@ -20,7 +20,9 @@ import EditClientModal from './EditClientModal.vue';
 const props = defineProps({
   clients: Array,
 });
-console.log('Clients:',props.clients);
+const page = usePage();
+const user = page.props.auth.user.roles[0];
+
 const showAddModal = ref(false);
 const showEditModal = ref(false);
 const selectedManager = ref(null);
@@ -33,6 +35,25 @@ const openEditModal = (client) => {
 const deleteManager = (id) => {
   if (confirm('Are you sure you want to delete this client?')) {
     router.delete(route('client.destroy', id));
+  }
+};
+console.log(props.clients);
+const approveClient = (id) => {
+  if (confirm('Are you sure you want to approve this client?')) {
+    router.post(route('client.approve', id), {}, {
+      onSuccess: () => {
+        // Update the client's approval status in the UI
+        const client = props.clients.find(client => client.id === id);
+        console.log(client);
+        if (client) {
+          client.is_approved = true;
+        }
+      },
+      onError: (errors) => {
+        console.error(errors);
+        alert('An error occurred while approving the client.');
+      },
+    });
   }
 };
 </script>
@@ -56,9 +77,10 @@ const deleteManager = (id) => {
             <TableHead>Country</TableHead>
             <TableHead>Gender</TableHead>
             <TableHead>Actions</TableHead>
+           <TableHead :v-if="user=='receptionist'">Approve Client </TableHead>
           </TableRow>
         </TableHeader>
-        <TableBody>
+                <TableBody>
           <TableRow v-for="client in clients" :key="client.id">
             <TableCell>{{ client.name }}</TableCell>
             <TableCell>{{ client.email }}</TableCell>
@@ -68,6 +90,16 @@ const deleteManager = (id) => {
             <TableCell>
               <Button class="mr-2" @click="openEditModal(client)">Edit</Button>
               <Button variant="destructive" @click="deleteManager(client.id)">Delete</Button>
+            </TableCell>
+            <TableCell v-if="user === 'receptionist'">
+              <Button
+                v-if="!client.is_approved"
+                variant="success"
+                @click="approveClient(client.id)"
+              >
+                Pending
+              </Button>
+              <span v-else class="text-green-600 font-bold">Approved</span>
             </TableCell>
           </TableRow>
         </TableBody>
