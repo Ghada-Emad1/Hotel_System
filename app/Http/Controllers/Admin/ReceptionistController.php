@@ -3,69 +3,64 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreManagerRequest;
-use App\Http\Requests\UpdateManagerRequest;
+use App\Http\Requests\StoreReceptionistRequest;
+use App\Http\Requests\UpdateReceptionistRequest;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
-use Spatie\Permission\Models\Role;
 use Inertia\Inertia;
 
 class ReceptionistController extends Controller
 {
     public function index()
     {
-        $receptionist = User::role('receptionist')->get();
+        $user = auth()->user();
+        $query = User::where('role', 'receptionist')->with('manager:id,name');
 
         return Inertia::render('Receptionists/Index', [
-            'receptionists' => $receptionist,
+            'receptionists' => $query->paginate(10),
+            'isAdmin' => $user->hasRole('admin'),
+            'userId' => $user->id
         ]);
     }
 
-    public function create()
-    {
-        return Inertia::render('Receptionists/Create');
-    }
-
-    public function store(StoreManagerRequest $request)
+    public function store(StoreReceptionistRequest $request)
     {
         $data = $request->validated();
         $data['password'] = Hash::make($data['password']);
+        $data['role'] = 'receptionist';
 
-        // رفع الصورة
+        if (auth()->user()->hasRole('manager')) {
+            $data['manager_id'] = auth()->id();
+        }
+
         if ($request->hasFile('avatar_image')) {
             $file = $request->file('avatar_image');
             $filename = time() . '_' . $file->getClientOriginalName();
             $file->storeAs('public/avatars', $filename);
             $data['avatar_image'] = $filename;
         } else {
-            $data['avatar_image'] = 'default.png'; // صورة افتراضية
+            $data['avatar_image'] = 'avatar.png';
         }
 
-        $data['role'] = 'receptionist';
-
-        $user = User::create($data);
-        $user->assignRole('receptionist');
+        $receptionist = User::create($data);
+        $receptionist->assignRole('receptionist');
 
         return redirect()->route('receptionist.index')->with('success', 'Receptionist created successfully.');
     }
 
-    public function update(UpdateManagerRequest $request, User $receptionist)
+    public function update(UpdateReceptionistRequest $request, User $receptionist)
     {
         $data = $request->validated();
 
-        unset($data['national_id']);
-
         if ($request->hasFile('avatar_image')) {
-            if ($receptionist->avatar_image && $receptionist->avatar_image !== 'default.png' && Storage::exists('public/avatars/' . $receptionist->avatar_image)) {
-                Storage::delete('public/avatars/' . $receptionist->avatar_image);
+            if ($receptionist->avatar_image && Storage::disk('public')->exists('avatars/' . $receptionist->avatar_image)) {
+                Storage::disk('public')->delete('avatars/' . $receptionist->avatar_image);
             }
 
             $filename = time() . '_' . $request->file('avatar_image')->getClientOriginalName();
             $request->file('avatar_image')->storeAs('public/avatars', $filename);
             $data['avatar_image'] = $filename;
-        } else {
-            unset($data['avatar_image']);
         }
 
         $receptionist->update($data);
@@ -75,8 +70,8 @@ class ReceptionistController extends Controller
 
     public function destroy(User $receptionist)
     {
-        if ($receptionist->avatar_image && $receptionist->avatar_image !== 'default.png' && Storage::exists('public/avatars/' . $receptionist->avatar_image)) {
-            Storage::delete('public/avatars/' . $receptionist->avatar_image);
+        if ($receptionist->avatar_image && Storage::disk('public')->exists('avatars/' . $receptionist->avatar_image)) {
+            Storage::disk('public')->delete('avatars/' . $receptionist->avatar_image);
         }
 
         $receptionist->delete();
@@ -85,16 +80,25 @@ class ReceptionistController extends Controller
     }
     public function ban(User $receptionist)
     {
-        $receptionist->update(['is_banned' => true]);
+        if (auth()->user()->hasRole('manager') && $receptionist->manager_id !== auth()->id()) {
+            return back()->with('error', 'You can only ban receptionists you created.');
+        }
 
+        $receptionist->ban();
         return back()->with('success', 'Receptionist banned successfully.');
     }
 
     public function unban(User $receptionist)
     {
-        $receptionist->update(['is_banned' => false]);
+        if (auth()->user()->hasRole('manager') && $receptionist->manager_id !== auth()->id()) {
+            return back()->with('error', 'You can only unban receptionists you created.');
+        }
 
+        $receptionist->unban();
         return back()->with('success', 'Receptionist unbanned successfully.');
     }
+
+
+
 
 }
