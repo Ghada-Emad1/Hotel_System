@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
@@ -15,8 +16,7 @@ class ClientController extends Controller
     {
         $clients = User::where('role', 'client')
             ->with('approval', 'approval.approver:id,name')
-            ->paginate(10);
-
+            ->paginate(20);
         return Inertia::render('Clients/Index', [
             'clients' => $clients,
             'isAdmin' => auth()->user()->hasRole('admin'),
@@ -30,12 +30,10 @@ class ClientController extends Controller
         $data['password'] = Hash::make($data['password']);
         $data['role'] = 'client';
 
-        // $data['role'] = 'client';
-
         $user = User::create($data);
         $user->assignRole('client');
 
-        return redirect()->route('clients.index')->with('success', 'Client added successfully.');
+        return redirect()->route('receptionist_client.index')->with('success', 'Client added successfully.'); // Fixed route name
     }
 
     public function edit(User $client)
@@ -48,7 +46,7 @@ class ClientController extends Controller
         $data = $request->validated();
         $client->update($data);
 
-        return redirect()->route('clients.index')->with('success', 'Client updated successfully.');
+        return redirect()->route('receptionist_client.index')->with('success', 'Client updated successfully.'); // Fixed route name
     }
 
     public function destroy(User $client)
@@ -56,36 +54,41 @@ class ClientController extends Controller
         $client->delete();
         return back()->with('success', 'Client deleted successfully.');
     }
-       
+
     public function pending()
     {
         $pendingClients = User::role('client')
-            ->where('is_approved', false) // Fetch clients who are not approved
+            ->where('is_approved', null) // Fetch clients who are not approved
             ->select(['id', 'name', 'email', 'national_id', 'country', 'gender', 'created_at'])
             ->latest()
             ->get();
-    
+
         return Inertia::render('Receptionists/ManageClients', [
             'clients' => $pendingClients,
         ]);
     }
 
-    public function approve(User $user)
+    
+    public function approve(User $client)
     {
-        if (!$user->hasRole('client')) {
+        // Ensure the user is a client
+        if (!$client->hasRole('client')) {
             return back()->with('error', 'Only clients can be approved.');
         }
-
+    
         // Approve the client
-        $user->update(['is_approved' => true]);
+        $client->update(['is_approved' => true]);
 
-        return back()->with('success', 'Client approved successfully.');
+        return redirect()->route('receptionist_client.index')->with('success', 'Client updated successfully.'); // Fixed route name
+
     }
 
-    public function reject(User $client)
-    {
-        ClientApproval::where('client_id', $client->id)->delete();
 
-        return back()->with('success', 'Client rejected successfully.');
-    }
+
+    // public function reject(User $client)
+    // {
+    //     ClientApproval::where('client_id', $client->id)->delete();
+
+    //     return back()->with('success', 'Client rejected successfully.');
+    // }
 }

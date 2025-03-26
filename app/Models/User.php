@@ -25,6 +25,7 @@ class User extends Authenticatable implements BannableContract
     protected $fillable = [
         'name',
         'email',
+        'is_approved',
         'password',
         'role',
         'national_id',

@@ -12,8 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->timestamp('banned_at')->nullable();
-            $table->boolean('is_approved')->nullable()->after('email');
+            $table->boolean('is_approved')->default(false)->after('email');
         });
     }
 
@@ -23,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn(['banned_at', 'is_approved']);
+            //
         });
     }
 };

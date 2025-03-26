@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->timestamp('banned_at')->nullable();
-            $table->boolean('is_approved')->nullable()->after('email');
         });
     }
 

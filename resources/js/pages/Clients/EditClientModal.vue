@@ -35,7 +35,7 @@ watch(() => props.client, (newVal) => {
 }, { immediate: true });
 
 const submit = () => {
-  form.post(route('client.update', props.client.id), {
+  form.post(route('receptionist_client.update', props.client.id), {
     forceFormData: true,
     onSuccess: () => emit('close'),
   });

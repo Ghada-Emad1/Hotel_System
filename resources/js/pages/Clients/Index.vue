@@ -7,7 +7,7 @@ import AddClientModal from './AddClientModal.vue';
 import EditClientModal from './EditClientModal.vue';
 
 const props = defineProps({
-  clients: Object,
+  clients: Object, // Pagination object
   isManager: Boolean,
   isReceptionist: Boolean,
 });
@@ -22,11 +22,30 @@ const openEditModal = (client) => {
 };
 
 const approveClient = (id) => {
-  router.post(route('client.approve', id));
+  if (confirm('Are you sure you want to approve this client?')) {
+    router.post(route('receptionist_client.approve', id), {}, {
+      onSuccess: () => {
+        // Update the client's approval status in the UI
+        const client = props.clients.data.find(client => client.id === id);
+        if (client) {
+          client.is_approved = true; // Update the UI
+        }
+      },
+      onError: (errors) => {
+        console.error(errors);
+        alert('An error occurred while approving the client.');
+      },
+    });
+  }
 };
 
-const rejectClient = (id) => {
-  router.delete(route('client.reject', id));
+const clients = props.clients;
+console.log("Clients ", clients);
+
+const deleteClient = (id) => {
+  if (confirm('Are you sure you want to delete this client?')) {
+    router.delete(route('receptionist_client.destroy', id));
+  }
 };
 </script>
 
@@ -48,6 +67,7 @@ const rejectClient = (id) => {
             <TableHead>Gender</TableHead>
             <TableHead v-if="isManager">Approved By</TableHead>
             <TableHead>Actions</TableHead>
+            <TableHead>Approved</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -58,15 +78,18 @@ const rejectClient = (id) => {
             <TableCell>{{ client.gender }}</TableCell>
             <TableCell v-if="isManager">{{ client.approval?.approved_by?.name || 'Not Approved' }}</TableCell>
             <TableCell>
-              <button @click="openEditModal(client)" class="bg-blue-500 text-white px-2 py-1 rounded">
-                Edit
-              </button>
-              <button v-if="isReceptionist && !client.approval" @click="approveClient(client.id)" class="bg-green-500 text-white px-2 py-1 ml-2 rounded">
-                Approve
-              </button>
-              <button v-if="isManager && client.approval" @click="rejectClient(client.id)" class="bg-red-500 text-white px-2 py-1 ml-2 rounded">
-                Reject
-              </button>
+              <Button class="mr-2" @click="openEditModal(client)">Edit</Button>
+              <Button variant="destructive" @click="deleteClient(client.id)">Delete</Button>
+            </TableCell>
+            <TableCell>
+              <Button
+                v-if="!client.is_approved"
+                variant="success"
+                @click="approveClient(client.id)"
+              >
+                Pending
+              </Button>
+              <span v-else class="text-green-600 font-bold">Approved</span>
             </TableCell>
           </TableRow>
         </TableBody>
