@@ -42,8 +42,9 @@ class ClientController extends Controller
             $data['avatar_image'] = 'default.png'; // صورة افتراضية
         }
 
-        // $data['role'] = 'client';
+        $data['role'] = 'client';
 
+        
         $user = User::create($data);
         $user->assignRole('client');
 
@@ -87,7 +88,7 @@ class ClientController extends Controller
     public function pending()
     {
         $pendingClients = User::role('client')
-            ->where('is_approved', false) // Fetch clients who are not approved
+            ->where('is_approved', null) // Fetch clients who are not approved
             ->select(['id', 'name', 'email', 'national_id', 'country', 'gender', 'created_at'])
             ->latest()
             ->get();
