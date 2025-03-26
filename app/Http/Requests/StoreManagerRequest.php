@@ -16,7 +16,7 @@ class StoreManagerRequest extends FormRequest
             'name' => 'required|string|min:3',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:6',
-            'national_id' => 'required|min:13|unique:users,national_id',
+            'national_id' => 'required|min:14|unique:users,national_id',
             'avatar_image' => 'nullable|image|mimes:jpg,jpeg,png',
             'country' => 'nullable|string',
             'gender' => 'nullable|in:Male,Female',

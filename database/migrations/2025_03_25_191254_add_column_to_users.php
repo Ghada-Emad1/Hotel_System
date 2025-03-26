@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddIsBannedToUsersTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -12,7 +12,7 @@ class AddIsBannedToUsersTable extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->boolean('is_banned')->default(false);
+            $table->foreignId('manager_id')->nullable()->constrained('users')->nullOnDelete();
         });
     }
 
@@ -22,7 +22,8 @@ class AddIsBannedToUsersTable extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('is_banned');
+            $table->dropForeign(['manager_id']);
+            $table->dropColumn('manager_id');
         });
     }
-}
+};
