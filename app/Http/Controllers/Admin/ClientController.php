@@ -1,94 +1,66 @@
 <?php
-
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreManagerRequest;
-use App\Http\Requests\UpdateManagerRequest;
+use App\Http\Requests\StoreClientRequest;
+use App\Http\Requests\UpdateClientRequest;
 use App\Models\User;
+use App\Models\ClientApproval;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
-use Spatie\Permission\Models\Role;
 use Inertia\Inertia;
 
 class ClientController extends Controller
 {
     public function index()
     {
-        $clients = User::role('client')->get();
+        $clients = User::where('role', 'client')
+            ->with('approval', 'approval.approver:id,name')
+            ->paginate(10);
 
         return Inertia::render('Clients/Index', [
             'clients' => $clients,
+            'isAdmin' => auth()->user()->hasRole('admin'),
+            'isManager' => auth()->user()->hasRole('manager'),
         ]);
     }
 
-    public function create()
-    {
-        return Inertia::render('Clients/Create');
-    }
-
-    public function store(StoreManagerRequest $request)
+    public function store(StoreClientRequest $request)
     {
         $data = $request->validated();
         $data['password'] = Hash::make($data['password']);
-
-        // رفع الصورة
-        if ($request->hasFile('avatar_image')) {
-            $file = $request->file('avatar_image');
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $file->storeAs('public/avatars', $filename);
-            $data['avatar_image'] = $filename;
-        } else {
-            $data['avatar_image'] = 'default.png'; // صورة افتراضية
-        }
-
         $data['role'] = 'client';
 
-        
+        // $data['role'] = 'client';
+
         $user = User::create($data);
         $user->assignRole('client');
 
-        return redirect()->route('client.index')->with('success', 'Client created successfully.');
+        return redirect()->route('clients.index')->with('success', 'Client added successfully.');
     }
 
-    public function update(UpdateManagerRequest $request, User $client)
+    public function edit(User $client)
+    {
+        return Inertia::render('Clients/Edit', ['client' => $client]);
+    }
+
+    public function update(UpdateClientRequest $request, User $client)
     {
         $data = $request->validated();
-
-        unset($data['national_id']);
-
-        if ($request->hasFile('avatar_image')) {
-            if ($client->avatar_image && $client->avatar_image !== 'default.png' && Storage::exists('public/avatars/' . $client->avatar_image)) {
-                Storage::delete('public/avatars/' . $client->avatar_image);
-            }
-
-            $filename = time() . '_' . $request->file('avatar_image')->getClientOriginalName();
-            $request->file('avatar_image')->storeAs('public/avatars', $filename);
-            $data['avatar_image'] = $filename;
-        } else {
-            unset($data['avatar_image']);
-        }
-
         $client->update($data);
 
-        return redirect()->route('client.index')->with('success', 'Receptionist updated successfully.');
+        return redirect()->route('clients.index')->with('success', 'Client updated successfully.');
     }
 
     public function destroy(User $client)
     {
-        if ($client->avatar_image && $client->avatar_image !== 'default.png' && Storage::exists('public/avatars/' . $client->avatar_image)) {
-            Storage::delete('public/avatars/' . $client->avatar_image);
-        }
-
         $client->delete();
-
-        return back()->with('success', 'Receptionist deleted successfully.');
+        return back()->with('success', 'Client deleted successfully.');
     }
        
     public function pending()
     {
         $pendingClients = User::role('client')
-            ->where('is_approved', null) // Fetch clients who are not approved
+            ->where('is_approved', false) // Fetch clients who are not approved
             ->select(['id', 'name', 'email', 'national_id', 'country', 'gender', 'created_at'])
             ->latest()
             ->get();
@@ -108,5 +80,12 @@ class ClientController extends Controller
         $user->update(['is_approved' => true]);
 
         return back()->with('success', 'Client approved successfully.');
+    }
+
+    public function reject(User $client)
+    {
+        ClientApproval::where('client_id', $client->id)->delete();
+
+        return back()->with('success', 'Client rejected successfully.');
     }
 }
