@@ -74,14 +74,13 @@ Route::prefix('manager/receptionists')->middleware(['auth', 'verified', 'role:ad
     Route::delete('{receptionist}/destroy', [ReceptionistController::class, 'destroy'])->name('receptionist.destroy');
     Route::post('/receptionists/{receptionist}/unban', [ReceptionistController::class, 'unban'])->name('receptionist.unban');
 });
-Route::prefix('admin/clients')->middleware(['auth', 'verified'])->group(function () {
-    Route::get('/', [ClientController::class, 'index'])->name('client.index');
-    Route::get('create', [ClientController::class, 'create'])->name('client.create');
-    Route::post('store', [ClientController::class, 'store'])->name('client.store');
-    Route::get('{client}/edit', [ClientController::class, 'edit'])->name('client.edit');
-    Route::put('{client}/update', [ClientController::class, 'update'])->name('client.update');
-    Route::delete('{client}/destroy', [ClientController::class, 'destroy'])->name('client.destroy');
+Route::middleware(['auth', 'role:admin|manager'])->group(function () {
+    Route::get('clients', [ClientController::class, 'index'])->name('clients.index');
+    Route::post('clients/store', [ClientController::class, 'store'])->name('clients.store');
+    Route::put('clients/{client}/update', [ClientController::class, 'update'])->name('clients.update');
+    Route::delete('clients/{client}/destroy', [ClientController::class, 'destroy'])->name('clients.destroy');
 });
+
 
 
 
@@ -110,17 +109,18 @@ Route::middleware(['auth', 'verified', 'role:admin|manager'])->prefix('admin/roo
 });
 
 
-Route::middleware(['auth', 'verified', 'role:receptionist'])->prefix('receptionist/clients')->name('client.')->group(function () {
+Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin/clients')->name('client.')->group(function () {
     Route::get('/', [ClientController::class, 'index'])->name('index');
     Route::get('create', [ClientController::class, 'create'])->name('create');
-    
     Route::post('/store', [ClientController::class, 'store'])->name('store');
     Route::get('pending', [ClientController::class, 'pending'])->name('pending');
     Route::post('{client}/approve', [ClientController::class, 'approve'])->name('approve');
+    Route::delete('{client}/reject', [ClientController::class, 'reject'])->name('reject');
     Route::get('{client}/edit', [ClientController::class, 'edit'])->name('edit');
-    Route::put('{client}/update', [ClientController::class, 'update'])->name('update');
-    Route::delete('{client}/destroy', [ClientController::class, 'destroy'])->name('destroy');
+    Route::put('{client}', [ClientController::class, 'update'])->name('update');
+    Route::delete('{client}', [ClientController::class, 'destroy'])->name('destroy');
 });
+
 
 Route::middleware(['auth', 'role:manager'])->group(function () {
     Route::get('manager/dashboard', function () {
@@ -153,6 +153,7 @@ Route::middleware(['auth', 'role:receptionist'])->group(function () {
         ]);
     })->name('receptionist.dashboard');
 });
+
 
 
 require __DIR__ . '/settings.php';

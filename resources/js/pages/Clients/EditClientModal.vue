@@ -1,6 +1,6 @@
 <script setup>
 import { useForm } from '@inertiajs/vue3';
-import { watch, ref } from 'vue';
+import { ref, watch } from 'vue';
 
 const props = defineProps({ client: Object });
 const emit = defineEmits(['close']);
@@ -8,23 +8,31 @@ const emit = defineEmits(['close']);
 const form = useForm({
   name: props.client.name,
   email: props.client.email,
-  avatar_image: null,
   country: props.client.country,
   gender: props.client.gender,
+  avatar_image: null,
   _method: 'PUT',
 });
 
-const previewUrl = ref(
-  props.client.avatar_image
-    ? `/storage/avatars/${props.client.avatar_image}`
-    : '/storage/avatars/default.png'
-);
+const storedImage = props.client.avatar_image
+  ? `/storage/avatars/${props.client.avatar_image}`
+  : '/storage/avatars/avatar.png';
 
-watch(() => form.avatar_image, (file) => {
-  if (file && typeof file !== 'string') {
+const previewUrl = ref(storedImage);
+
+const handleFileChange = (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    form.avatar_image = file;
     previewUrl.value = URL.createObjectURL(file);
   }
-});
+};
+
+watch(() => props.client, (newVal) => {
+  previewUrl.value = newVal.avatar_image
+    ? `/storage/avatars/${newVal.avatar_image}`
+    : '/storage/avatars/avatar.png';
+}, { immediate: true });
 
 const submit = () => {
   form.post(route('client.update', props.client.id), {
@@ -35,11 +43,11 @@ const submit = () => {
 </script>
 
 <template>
-  <div class="fixed inset-0 bg-gray-800/60 z-50 flex justify-center items-center">
-    <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-xl space-y-4">
-      <h2 class="text-xl font-bold">Edit Client</h2>
+  <div class="fixed inset-0 bg-gray-800/60 flex justify-center items-center z-50">
+    <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
+      <h2 class="text-xl font-bold mb-4">Edit Client</h2>
 
-      <div>
+      <div class="text-center">
         <img :src="previewUrl" class="w-20 h-20 rounded-full object-cover mb-2" />
       </div>
 
@@ -47,26 +55,23 @@ const submit = () => {
         <div>
           <label class="block font-medium mb-1">Name</label>
           <input v-model="form.name" type="text" class="w-full border rounded px-3 py-2" />
-          <p class="text-sm text-red-500">{{ form.errors.name }}</p>
         </div>
+
         <div>
           <label class="block font-medium mb-1">Email</label>
           <input v-model="form.email" type="email" class="w-full border rounded px-3 py-2" />
-          <p class="text-sm text-red-500">{{ form.errors.email }}</p>
         </div>
+
         <div>
           <label class="block font-medium mb-1">National ID</label>
           <input :value="props.client.national_id" disabled type="text" class="w-full border rounded px-3 py-2 bg-gray-100" />
         </div>
-        <div>
-          <label class="block font-medium mb-1">Avatar Image</label>
-          <input type="file" @change="form.avatar_image = $event.target.files[0]" />
-          <p class="text-sm text-red-500">{{ form.errors.avatar_image }}</p>
-        </div>
+
         <div>
           <label class="block font-medium mb-1">Country</label>
           <input v-model="form.country" type="text" class="w-full border rounded px-3 py-2" />
         </div>
+
         <div>
           <label class="block font-medium mb-1">Gender</label>
           <select v-model="form.gender" class="w-full border rounded px-3 py-2">
@@ -74,6 +79,11 @@ const submit = () => {
             <option>Male</option>
             <option>Female</option>
           </select>
+        </div>
+
+        <div>
+          <label class="block font-medium mb-1">Avatar Image</label>
+          <input type="file" @change="handleFileChange" />
         </div>
 
         <div class="flex justify-end gap-3 mt-4">
