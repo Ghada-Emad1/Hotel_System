@@ -97,7 +97,6 @@ Route::middleware(['auth', 'verified', 'role:admin|manager'])->prefix('admin/roo
 Route::middleware(['auth', 'verified', 'role:receptionist'])->prefix('receptionist/clients')->name('client.')->group(function () {
     Route::get('/', [ClientController::class, 'index'])->name('index');
     Route::get('create', [ClientController::class, 'create'])->name('create');
-    
     Route::post('/store', [ClientController::class, 'store'])->name('store');
     Route::get('pending', [ClientController::class, 'pending'])->name('pending');
     Route::post('{client}/approve', [ClientController::class, 'approve'])->name('approve');
