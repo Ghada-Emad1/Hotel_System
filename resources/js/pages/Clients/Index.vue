@@ -65,7 +65,6 @@ const deleteClient = (id) => {
             <TableHead>Email</TableHead>
             <TableHead>Country</TableHead>
             <TableHead>Gender</TableHead>
-            <TableHead v-if="isManager">Approved By</TableHead>
             <TableHead>Actions</TableHead>
             <TableHead>Approved</TableHead>
           </TableRow>
@@ -76,7 +75,7 @@ const deleteClient = (id) => {
             <TableCell>{{ client.email }}</TableCell>
             <TableCell>{{ client.country }}</TableCell>
             <TableCell>{{ client.gender }}</TableCell>
-            <TableCell v-if="isManager">{{ client.approval?.approved_by?.name || 'Not Approved' }}</TableCell>
+           
             <TableCell>
               <Button class="mr-2" @click="openEditModal(client)">Edit</Button>
               <Button variant="destructive" @click="deleteClient(client.id)">Delete</Button>

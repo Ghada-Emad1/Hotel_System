@@ -1,19 +1,16 @@
 <script setup lang="ts">
-import { Button } from '@/components/ui/button';
+import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { NavItem } from '@/types';
 import { usePage } from '@inertiajs/vue3';
-import { User } from 'lucide-vue-next';
+import { BookOpen, Folder, User } from 'lucide-vue-next';
 import { computed } from 'vue';
-import { useRouter } from 'vue-router';
-import { BookOpen, Folder } from 'lucide-vue-next';
-import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarMenuLink, SidebarMenuLinkButton, SidebarMenuLinkIcon, SidebarMenuLinkText, SidebarMenuLinkTooltip, SidebarGroup, SidebarGroupLabel } from '@/components/ui/sidebar';
 
-import NavMain from '../NavMain.vue';
 import NavFooter from '../NavFooter.vue';
+import NavMain from '../NavMain.vue';
 import NavUser from '../NavUser.vue';
 // Get user data from Inertia.js props
 const page = usePage();
-const user = computed(() => page.props.auth.user.roles[0]);
+const user = computed(() => page.props.auth.user.roles);
 
 // Extract user permissions (fallback to empty array if undefined)
 const permissions = computed(() => page.props.auth.user.permissions || []);
@@ -70,15 +67,14 @@ const mainNav = computed(() => {
             icon: User,
         });
     }
-         if (permissions.value.includes('approve_clients')) {
+    if (permissions.value.includes('approve_clients')) {
         items.push({
             title: 'approve clients',
             href: `/${user.value}/approve_clients`,
             icon: User,
         });
     }
-            
-    
+
     if (permissions.value.includes('My_Approved_client')) {
         items.push({
             title: 'My Approved Clients',
@@ -86,15 +82,39 @@ const mainNav = computed(() => {
             icon: User,
         });
     }
-         if (permissions.value.includes('client_reservations')) {
+    if (permissions.value.includes('client_reservations')) {
         items.push({
             title: 'Client Reservations',
             href: `/${user.value}/client_reservations`,
             icon: User,
         });
     }
+    if (permissions.value.includes('make_reservations')) {
+        items.push({
+            title: 'Make Reservations',
+            href: `/${user.value}/make_reservations`,
+            icon: User,
+        });
+    }
+    if (permissions.value.includes('Available_rooms')) {  
+        items.push({
+            title: 'Available Rooms',
+            href: `/${user.value}/available_rooms`,
+            icon: User,
+        });
+    }
+    if (permissions.value.includes('My_reservations')) {
+        items.push({
+            title: 'My Reservations',
+            href: `/${user.value}/my_reservations`,
+            icon: User,
+        });
+    }
+          
     return items;
 });
+
+
 
 
 const footerNavItems: NavItem[] = [
@@ -108,7 +128,6 @@ const footerNavItems: NavItem[] = [
         href: 'https://laravel.com/docs/starter-kits',
         icon: BookOpen,
     },
-
 ];
 console.log('Main Nav', mainNav.value);
 </script>
@@ -120,7 +139,7 @@ console.log('Main Nav', mainNav.value);
                 <SidebarMenuItem>
                     <SidebarMenuButton size="lg" as-child>
                         <Link :href="route('admin.dashboard')">
-                        <AppLogo />
+                            <AppLogo />
                         </Link>
                     </SidebarMenuButton>
                 </SidebarMenuItem>

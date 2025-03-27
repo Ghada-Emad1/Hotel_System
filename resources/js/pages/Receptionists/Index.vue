@@ -5,6 +5,7 @@ import { ref } from 'vue';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AddReceptionistModal from './AddReceptionistModal.vue';
 import EditReceptionistModal from './EditReceptionist.vue';
+import { formatDate } from '@vueuse/core';
 
 const props = defineProps({
     receptionists: Object,

@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\ManagerController;
 use App\Http\Controllers\Admin\ReceptionistController;
 use App\Http\Controllers\Admin\ClientController;
 
+use App\Http\Controllers\ReservationController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\Admin\FloorController;
@@ -190,6 +191,35 @@ Route::middleware(['auth', 'role:receptionist'])->group(function () {
     })->name('receptionist.dashboard');
 });
 
+Route::middleware(['auth', 'role:client'])->group(function () {
+    Route::get('client/dashboard', function () {
+        return Inertia::render('ClientDashboard', [
+            'client' => true,
+        ]);
+    })->name('client.dashboard');
+});
+
+
+
+Route::middleware(['auth', 'verified', 'role:client'])->prefix('client/my_reservations')->name('reservation.')->group(function () {
+    Route::get('/', [ReservationController::class, 'myReservations'])->name('index');
+});
+
+// Route::middleware(['auth', 'verified', 'role:client'])->prefix('client/make_reservations')->name('reservation.')->group(function () {
+//     Route::get('/reservations/rooms/{room}', [ReservationController::class, 'bookRoom'])->name('reservations.book');
+// });
+
+
+
+Route::middleware(['auth', 'verified', 'role:client'])->prefix('client')->name('client.')->group(function () {
+    Route::post('/create-checkout-session', [ReservationController::class, 'createCheckoutSession']);
+    Route::get('/payment-success', [ReservationController::class, 'paymentSuccess']);
+    Route::get('/payment-cancelled', [ReservationController::class, 'paymentCancelled']);
+
+    Route::get('/reservations', [ReservationController::class, 'myReservations'])->name('reservations');
+    Route::get('/reservations/make', [ReservationController::class, 'availableRooms'])->name('reservations.available');
+    Route::get('/reservations/rooms/{room}', [ReservationController::class, 'bookRoom'])->name('reservations.book');
+});
 
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';

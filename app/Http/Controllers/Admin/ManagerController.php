@@ -16,7 +16,7 @@ class ManagerController extends Controller
     public function index()
     {
         $managers = User::role('manager')->get();
-
+       
         return Inertia::render('Managers/Index', [
             'managers' => $managers,
         ]);
@@ -50,6 +50,8 @@ class ManagerController extends Controller
 
         $user = User::create($data);
         $user->assignRole('manager');
+        $managers = User::role('manager')->get();
+
 
         return redirect()->route('manager.index')->with('success', 'Manager created successfully.');
     }
