@@ -58,12 +58,15 @@ Route::prefix('manager/receptionists')->middleware(['auth', 'verified', 'role:ad
     Route::delete('{receptionist}/destroy', [ReceptionistController::class, 'destroy'])->name('receptionist.destroy');
     Route::post('/receptionists/{receptionist}/unban', [ReceptionistController::class, 'unban'])->name('receptionist.unban');
 });
-Route::prefix('admin/clients')->middleware(['auth', 'verified'])->group(function () {
+Route::prefix('admin/clients')->middleware(['auth', 'verified','role:admin'])->group(function () {
     Route::get('/', [ClientController::class, 'index'])->name('client.index');
     Route::get('create', [ClientController::class, 'create'])->name('client.create');
     Route::post('store', [ClientController::class, 'store'])->name('client.store');
     Route::get('{client}/edit', [ClientController::class, 'edit'])->name('client.edit');
     Route::put('{client}/update', [ClientController::class, 'update'])->name('client.update');
+    Route::get('pending', [ClientController::class, 'pending'])->name('pending');
+    Route::post('clients/{client}/approve', [ClientController::class, 'approve'])->name('approve');
+
     Route::delete('{client}/destroy', [ClientController::class, 'destroy'])->name('client.destroy');
 });
 
@@ -105,7 +108,7 @@ Route::middleware(['auth', 'verified', 'role:admin|manager'])->prefix('admin/roo
 });
 
 
-Route::middleware(['auth', 'verified', 'role:receptionist|manager'])
+Route::middleware(['auth', 'verified', 'role:receptionist|manager|admin'])
     ->prefix('receptionist/clients')
     ->name('receptionist_client.') // Ensure consistent route naming
     ->group(function () {

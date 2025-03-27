@@ -1,5 +1,8 @@
 <script setup lang="ts">
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, usePage } from '@inertiajs/vue3';
+
+const page = usePage();
+console.log(page.props.auth);
 </script>
 
 <template>
