@@ -25,9 +25,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'manage_floors',
             'manage_rooms',
             'approve_clients',
-            'make_reservations',
             'My_reservations',
-            'Available_rooms',
+
             'client_reservations',
             'My_Approved_client',
             'view_reports',
@@ -69,8 +68,7 @@ class RolesAndPermissionsSeeder extends Seeder
         $clientRole = Role::firstOrCreate(['name' => 'client']);
         $clientRole->syncPermissions([
             'make_reservations',
-            'Available_rooms',
-            'My_reservations'
+            
 
         ]);
     }
