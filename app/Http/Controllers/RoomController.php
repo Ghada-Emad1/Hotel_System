@@ -8,22 +8,28 @@ use App\Models\Room;
 use App\Models\Floor;
 use App\Models\Reservation;
 use Inertia\Inertia;
+use Illuminate\Http\Request;
 
 class RoomController extends Controller
 {
-    public function index()
-{
-    $user = auth()->user();
-    $query = Room::query()->with('floor:id,name', 'manager:id,name');
+    public function index(Request $request)
+    {
+        $user = auth()->user();
+        $perPage = $request->input('per_page', 10); // Default to 10 items per page
 
-    return Inertia::render('Rooms/Index', [
-        'rooms' => $query->get(),
-        'floors' => Floor::select('id', 'name')->get(),
-        'isAdmin' => $user->hasRole('admin'),
-        'userId' => $user->id,
-    ]);
-}
+        $query = Room::query()
+            ->with('floor:id,name', 'manager:id,name');
 
+        // Apply pagination
+        $rooms = $query->paginate($perPage)->withQueryString();
+
+        return Inertia::render('Rooms/Index', [
+            'rooms' => $rooms,
+            'floors' => Floor::select('id', 'name')->get(),
+            'isAdmin' => $user->hasRole('admin'),
+            'userId' => $user->id,
+        ]);
+    }
 
     public function store(StoreRoomRequest $request)
     {

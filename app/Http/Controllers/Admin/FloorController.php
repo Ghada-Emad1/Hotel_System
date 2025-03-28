@@ -8,16 +8,19 @@ use App\Http\Requests\UpdateFloorRequest;
 use App\Models\Floor;
 use App\Models\Room;
 use Inertia\Inertia;
+use Illuminate\Http\Request; 
 
 class FloorController extends Controller
 {
-    public function index()
+    public function index(Request $request) 
     {
         $user = auth()->user();
+        $perPage = $request->input('per_page', 10);
         $query = Floor::query()->with('manager:id,name');
 
+        $floors = $query->paginate($perPage)->withQueryString();
         return Inertia::render('Floors/Index', [
-            'floors' => $query->get(),
+            'floors' => $floors,
             'userId' => $user->id,
             'isAdmin' => $user->hasRole('admin'),
         ]);
@@ -26,7 +29,7 @@ class FloorController extends Controller
     public function store(StoreFloorRequest $request)
     {
         $latestFloor = Floor::latest()->first();
-        $newFloorNumber = $latestFloor ? $latestFloor->number + 1 : 1000; // يبدأ الترقيم من 1000
+        $newFloorNumber = $latestFloor ? $latestFloor->number + 1 : 1000; 
 
         Floor::create([
             'name' => $request->name,
@@ -64,6 +67,4 @@ class FloorController extends Controller
 
         return back()->with('success', 'Floor deleted successfully.');
     }
-
-
 }

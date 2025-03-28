@@ -10,18 +10,26 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 use Inertia\Inertia;
-
+use Illuminate\Http\Request;
+use App\Traits\ImageUploadTrait;
 class ReceptionistController extends Controller
 {
-    public function index()
+    use ImageUploadTrait;
+    public function index(Request $request)
     {
+        $perPage = $request->input('per_page', 10);
         $user = auth()->user();
-        $query = User::where('role', 'receptionist')->with('manager:id,name');
+
+        $query = User::role('receptionist')
+            ->with('manager:id,name')
+            ->paginate($perPage)
+            ->withQueryString();
 
         return Inertia::render('Receptionists/Index', [
-            'receptionists' => $query->paginate(10),
+            'receptionists' => $query,
             'isAdmin' => $user->hasRole('admin'),
-            'userId' => $user->id
+            'userId' => $user->id,
+            'manualPagination' => true,
         ]);
     }
 
@@ -35,15 +43,8 @@ class ReceptionistController extends Controller
             $data['manager_id'] = auth()->id();
         }
 
-        if ($request->hasFile('avatar_image')) {
-            $file = $request->file('avatar_image');
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $file->storeAs('public/avatars', $filename);
-            $data['avatar_image'] = $filename;
-        } else {
-            $data['avatar_image'] = 'avatar.png';
-        }
-
+        // Handle avatar upload using the trait
+        $data['avatar_image'] = $this->uploadImage($request->file('avatar_image'), 'avatars', null, 'avatar.png');
         $receptionist = User::create($data);
         $receptionist->assignRole('receptionist');
 
@@ -54,15 +55,8 @@ class ReceptionistController extends Controller
     {
         $data = $request->validated();
 
-        if ($request->hasFile('avatar_image')) {
-            if ($receptionist->avatar_image && Storage::disk('public')->exists('avatars/' . $receptionist->avatar_image)) {
-                Storage::disk('public')->delete('avatars/' . $receptionist->avatar_image);
-            }
-
-            $filename = time() . '_' . $request->file('avatar_image')->getClientOriginalName();
-            $request->file('avatar_image')->storeAs('public/avatars', $filename);
-            $data['avatar_image'] = $filename;
-        }
+        // Handle avatar upload using the trait
+        $data['avatar_image'] = $this->uploadImage($request->file('avatar_image'), 'avatars',$receptionist->avatar_image, 'avatar.png');
 
         $receptionist->update($data);
 
@@ -71,14 +65,16 @@ class ReceptionistController extends Controller
 
     public function destroy(User $receptionist)
     {
-        if ($receptionist->avatar_image && Storage::disk('public')->exists('avatars/' . $receptionist->avatar_image)) {
-            Storage::disk('public')->delete('avatars/' . $receptionist->avatar_image);
-        }
+
+        // Delete the avatar using the trait
+        $this->deleteImage($receptionist->avatar_image, 'avatars');
+
 
         $receptionist->delete();
 
         return back()->with('success', 'Receptionist deleted successfully.');
     }
+
     public function ban(User $receptionist)
     {
         if (auth()->user()->hasRole('manager') && $receptionist->manager_id !== auth()->id()) {
@@ -98,8 +94,4 @@ class ReceptionistController extends Controller
         $receptionist->unban();
         return back()->with('success', 'Receptionist unbanned successfully.');
     }
-
-
-
-
 }
