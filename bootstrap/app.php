@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\AdminMiddleware;
+use App\Http\Middleware\ExcludeCheckoutCsrf;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\HandleRoles;
@@ -28,6 +29,7 @@ return Application::configure(basePath: dirname(__DIR__))
             AddLinkHeadersForPreloadedAssets::class,
             HandleRoles::class,
             EnsureUserIsApproved::class,
+            ExcludeCheckoutCsrf::class,
     ]);
 
         $middleware->alias([

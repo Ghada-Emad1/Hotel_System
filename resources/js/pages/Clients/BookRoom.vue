@@ -12,35 +12,38 @@ const accompanyNumber = ref(1);
 const errorMessage = ref(null);
 const csrfToken = document.head.querySelector('meta[name="csrf-token"]').content;
 
-const submitReservation = async () => {
-  if (accompanyNumber.value > props.room.capacity) {
-    errorMessage.value = "The number of accompanying guests cannot exceed the room capacity.";
-    return;
-  }
+if (!csrfToken) {
+  console.error("CSRF token not found. Ensure the meta tag is present in the HTML head.");
+}
+console.log("Room ID:", props.room?.id);
+console.log("Price:", props.room?.price);
 
+
+
+const submitReservation = async () => {
   try {
-    const response = await fetch("/create-checkout-session", {
-      method: "POST",
+    const response = await fetch('/client/create-checkout-session', {
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
-        "X-CSRF-TOKEN": csrfToken,
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': csrfToken, // Include the CSRF token
       },
       body: JSON.stringify({
         room_id: props.room.id,
         accompany_number: accompanyNumber.value,
-        amount: props.room.price * 100, 
+        amount: props.room.price * 100, // Convert price to cents
       }),
     });
 
     if (!response.ok) {
-      errorMessage.value = "Failed to create checkout session.";
-      return;
+      throw new Error('Failed to create checkout session.');
     }
 
-    const { checkoutUrl } = await response.json();
-    window.location.href = checkoutUrl; // 
+    const data = await response.json();
+    window.location.href = data.checkoutUrl; // Redirect to Stripe checkout
   } catch (error) {
-    errorMessage.value = "An error occurred. Please try again.";
+    console.error(error);
+    alert('An error occurred while processing your reservation.');
   }
 };
 </script>

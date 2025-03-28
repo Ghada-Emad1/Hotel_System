@@ -72,8 +72,8 @@ class ReservationController extends Controller
                     'quantity' => 1,
                 ]],
                 'mode' => 'payment',
-                'success_url' => url('/payment-success'),
-                'cancel_url' => url('/payment-cancelled'),
+                'success_url' => url('client/payment-success'),
+                'cancel_url' => url('client.payment.cancelled'),
             ]);
 
             return response()->json(['checkoutUrl' => $session->url]);
@@ -86,11 +86,11 @@ class ReservationController extends Controller
     public function paymentSuccess(Request $request)
     {
         
-        // \Log::info('Session Data:', [
-        //     'room_id' => session('room_id'),
-        //     'accompany_number' => session('accompany_number'),
-        //     'paid_price' => session('paid_price'),
-        // ]);
+        \Log::info('Session Data:', [
+            'room_id' => session('room_id'),
+            'accompany_number' => session('accompany_number'),
+            'paid_price' => session('paid_price'),
+        ]);
 
        
         $roomId = session('room_id');
@@ -123,7 +123,7 @@ class ReservationController extends Controller
    
     public function paymentCancelled()
     {
-        return Inertia::render('Client/PaymentCancelled', [
+        return Inertia::render('Clients/PaymentCancelled', [
             'message' => 'Payment was cancelled. You can try again later.'
         ]);
     }

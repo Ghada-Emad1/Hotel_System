@@ -212,16 +212,14 @@ Route::middleware(['auth', 'verified', 'role:client'])->prefix('client/my_reserv
 
 
 Route::middleware(['auth', 'verified', 'role:client'])->prefix('client')->name('client.')->group(function () {
-    Route::post('/create-checkout-session', [ReservationController::class, 'createCheckoutSession']);
-    Route::get('/payment-success', [ReservationController::class, 'paymentSuccess']);
-    Route::get('/payment-cancelled', [ReservationController::class, 'paymentCancelled']);
 
+    Route::get('/payment-cancelled', [ReservationController::class, 'paymentCancelled']);
+    Route::post('/create-checkout-session', [ReservationController::class, 'createCheckoutSession'])->name('create-checkout-session');
+    Route::get('/payment-success', [ReservationController::class, 'paymentSuccess'])->name('payment.success');
     Route::get('/reservations', [ReservationController::class, 'myReservations'])->name('reservations');
     Route::get('/reservations/make', [ReservationController::class, 'availableRooms'])->name('reservations.available');
     Route::get('/reservations/rooms/{room}', [ReservationController::class, 'bookRoom'])->name('reservations.book');
 });
-
-
 
 
 Route::get('/pending-approval', function () {

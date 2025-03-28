@@ -1,13 +1,13 @@
 <script setup>
 import { Head, router } from "@inertiajs/vue3";
-import ClientAppLayout from "@/layouts/ClientAppLayout.vue";
 import { Button } from "@/components/ui/button";
+import AdminAppLayout from "@/layouts/AdminAppLayout.vue";
 </script>
 
 <template>
   <Head title="Payment Successful" />
   
-  <ClientAppLayout>
+  <AdminAppLayout>
     <div class="p-8 text-center">
       <h1 class="text-2xl font-bold text-green-600">Payment Successful!</h1>
       <p class="mt-4 text-gray-700">Your reservation has been confirmed.</p>
@@ -17,5 +17,5 @@ import { Button } from "@/components/ui/button";
           View My Reservations
         </Button>
     </div>
-  </ClientAppLayout>
+  </AdminAppLayout>
 </template>
