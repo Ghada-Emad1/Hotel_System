@@ -16,7 +16,7 @@ const form = useForm({
 
 const storedImage = props.manager.avatar_image
   ? `/storage/avatars/${props.manager.avatar_image}`
-  : '/storage/avatars/default.png';
+  : '/storage/avatars/avatar.png';
 
 const previewUrl = ref(storedImage);
 
@@ -59,6 +59,7 @@ const submit = () => {
           <label class="block font-medium mb-1">National ID</label>
           <input :value="props.manager.national_id" disabled type="text" class="w-full border rounded px-3 py-2 bg-gray-100" />
         </div>
+
         <div>
           <label class="block font-medium mb-1">Avatar Image</label>
           <input type="file" @change="handleFileChange" />

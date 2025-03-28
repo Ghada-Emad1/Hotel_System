@@ -4,9 +4,11 @@ import { useForm } from '@inertiajs/vue3';
 import AddRoomModal from './AddRoomModal.vue';
 import EditRoomModal from './EditRoomModal.vue';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Button } from '@/components/ui/button'; // ShadCN Button component
 import AdminAppLayout from '@/layouts/AdminAppLayout.vue';
+
 const props = defineProps({
-  rooms: Array,
+  rooms: Object, // Updated to handle paginated data
   floors: Array,
   userId: Number,
   isAdmin: Boolean,
@@ -34,17 +36,21 @@ const canModifyRoom = (room) => {
 const getManagerName = (room) => {
   return room.manager ? room.manager.name : 'Admin';
 };
+
+// Pagination function
+const updatePage = (page) => {
+  useForm().get(route('rooms.index', { page }), {}, { preserveState: true, preserveScroll: true });
+};
 </script>
+
 <template>
-    <AdminAppLayout>
+  <AdminAppLayout>
     <div class="p-6">
       <h1 class="text-2xl font-bold mb-4">Manage Rooms</h1>
 
-      <button v-if="isAdmin || userId"
-              @click="showAddModal = true"
-              class="bg-green-600 text-white px-4 py-2 rounded mb-4">
+      <Button v-if="isAdmin || userId" variant="default" class="mb-4" @click="showAddModal = true">
         Add Room
-      </button>
+      </Button>
 
       <Table class="border">
         <TableHeader>
@@ -54,28 +60,55 @@ const getManagerName = (room) => {
             <TableHead>Capacity</TableHead>
             <TableHead>Price</TableHead>
             <TableHead v-if="isAdmin">Manager</TableHead>
-            <TableHead v-if="isAdmin || rooms.some(room => room.manager_id === userId)">Actions</TableHead>
+            <TableHead v-if="isAdmin || rooms.data.some(room => room.manager_id === userId)">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          <TableRow v-for="room in rooms" :key="room.id">
+          <TableRow v-for="room in rooms.data" :key="room.id">
             <TableCell>{{ room.floor.name }}</TableCell>
             <TableCell>{{ room.number }}</TableCell>
             <TableCell>{{ room.capacity }}</TableCell>
             <TableCell>${{ (room.price / 100).toFixed(2) }}</TableCell>
             <TableCell v-if="isAdmin">
-              {{ room.manager ? room.manager.name : 'Admin' }}
+              {{ getManagerName(room) }}
             </TableCell>
             <TableCell v-if="isAdmin || room.manager_id === userId">
-              <button class="text-blue-600 mr-2" @click="openEditModal(room)">Edit</button>
-              <button class="text-red-600" @click="deleteRoom(room.id)">Delete</button>
+              <Button variant="outline" size="sm" class="mr-2" @click="openEditModal(room)">
+                Edit
+              </Button>
+              <Button variant="destructive" size="sm" @click="deleteRoom(room.id)">
+                Delete
+              </Button>
             </TableCell>
           </TableRow>
         </TableBody>
       </Table>
 
+      <!-- Pagination Controls -->
+      <div class="flex items-center justify-between mt-4">
+        <Button
+          variant="outline"
+          size="sm"
+          @click="updatePage(rooms.current_page - 1)"
+          :disabled="rooms.current_page === 1"
+        >
+          Previous
+        </Button>
+        <span class="text-sm text-muted-foreground">
+          Page {{ rooms.current_page }} of {{ rooms.last_page }}
+        </span>
+        <Button
+          variant="outline"
+          size="sm"
+          @click="updatePage(rooms.current_page + 1)"
+          :disabled="rooms.current_page === rooms.last_page"
+        >
+          Next
+        </Button>
+      </div>
+
       <AddRoomModal v-if="showAddModal" :floors="floors" @close="showAddModal = false" />
       <EditRoomModal v-if="selectedRoom" :room="selectedRoom" :floors="floors" @close="selectedRoom = null" />
     </div>
-</AdminAppLayout>
-  </template>
+  </AdminAppLayout>
+</template>

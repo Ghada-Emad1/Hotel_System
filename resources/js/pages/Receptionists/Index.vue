@@ -5,12 +5,11 @@ import { ref } from 'vue';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AddReceptionistModal from './AddReceptionistModal.vue';
 import EditReceptionistModal from './EditReceptionist.vue';
-import { formatDate } from '@vueuse/core';
-
+import { Button } from '@/components/ui/button';
 const props = defineProps({
     receptionists: Object,
     isAdmin: Boolean,
-    userId: Number
+    userId: Number,
 });
 
 const showAddModal = ref(false);
@@ -29,15 +28,18 @@ const deleteReceptionist = (id) => {
 };
 
 const toggleBan = (receptionist) => {
-  const action = receptionist.banned_at ? 'unban' : 'ban';
-  router.post(route(`receptionist.${action}`, receptionist.id), {
-    preserveScroll: true,
-    onSuccess: () => {
-      receptionist.banned_at = receptionist.banned_at ? null : new Date();
-    }
-  });
+    const action = receptionist.banned_at ? 'unban' : 'ban';
+    router.post(route(`receptionist.${action}`, receptionist.id), {
+        preserveScroll: true,
+        onSuccess: () => {
+            receptionist.banned_at = receptionist.banned_at ? null : new Date();
+        },
+    });
 };
 
+const updatePage = (page) => {
+    router.get(route('receptionist.index', { page }), {}, { preserveState: true, preserveScroll: true });
+};
 </script>
 
 <template>
@@ -52,6 +54,7 @@ const toggleBan = (receptionist) => {
             <Table>
                 <TableHeader>
                     <TableRow>
+                        <TableHead>Avatar</TableHead>
                         <TableHead>Name</TableHead>
                         <TableHead>Email</TableHead>
                         <TableHead>National ID</TableHead>
@@ -62,22 +65,27 @@ const toggleBan = (receptionist) => {
                 </TableHeader>
                 <TableBody>
                     <TableRow v-for="receptionist in receptionists.data" :key="receptionist.id">
+                        <!-- Avatar Image -->
+                        <TableCell>
+                            <img :src="receptionist.avatar_image ? `/storage/avatars/${receptionist.avatar_image}` : '/storage/avatars/avatar.png'"
+                                alt="Avatar" class="w-10 h-10 rounded-full border" />
+                        </TableCell>
                         <TableCell>{{ receptionist.name }}</TableCell>
                         <TableCell>{{ receptionist.email }}</TableCell>
                         <TableCell>{{ receptionist.national_id }}</TableCell>
                         <TableCell>{{ receptionist.created_at }}</TableCell>
-                        <TableCell v-if="isAdmin">{{ receptionist.manager ? receptionist.manager.name : 'Admin' }}
+                        <TableCell v-if="isAdmin">
+                            {{ receptionist.manager ? receptionist.manager.name : 'Admin' }}
                         </TableCell>
                         <TableCell v-if="isAdmin || receptionist.manager_id === userId">
                             <button @click="openEditModal(receptionist)"
                                 class="bg-blue-500 text-white px-2 py-1 rounded">
                                 Edit
                             </button>
-                            <button @click="toggleBan(receptionist)" class="bg-yellow-500 text-white px-2 py-1 mx-2 rounded">
-  {{ receptionist.banned_at ? 'Unban' : 'Ban' }}
-</button>
-
-
+                            <button @click="toggleBan(receptionist)"
+                                class="bg-yellow-500 text-white px-2 py-1 mx-2 rounded">
+                                {{ receptionist.banned_at ? 'Unban' : 'Ban' }}
+                            </button>
                             <button @click="deleteReceptionist(receptionist.id)"
                                 class="bg-red-500 text-white px-2 py-1 rounded">
                                 Delete
@@ -87,6 +95,20 @@ const toggleBan = (receptionist) => {
                 </TableBody>
             </Table>
 
+            <!-- Pagination Controls -->
+            <div class="flex items-center justify-between mt-4">
+                <Button variant="outline" size="sm" @click="updatePage(receptionists.current_page - 1)"
+                    :disabled="receptionists.current_page === 1">
+                    Previous
+                </Button>
+                <span class="text-sm text-muted-foreground">
+                    Page {{ receptionists.current_page }} of {{ receptionists.last_page }}
+                </span>
+                <Button variant="outline" size="sm" @click="updatePage(receptionists.current_page + 1)"
+                    :disabled="receptionists.current_page === receptionists.last_page">
+                    Next
+                </Button>
+            </div>
             <AddReceptionistModal v-if="showAddModal" @close="showAddModal = false" />
             <EditReceptionistModal v-if="showEditModal" :receptionist="selectedReceptionist"
                 @close="showEditModal = false" />

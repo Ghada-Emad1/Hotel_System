@@ -6,19 +6,26 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreManagerRequest;
 use App\Http\Requests\UpdateManagerRequest;
 use App\Models\User;
+use App\Traits\ImageUploadTrait;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
-use Spatie\Permission\Models\Role;
 use Inertia\Inertia;
+use Illuminate\Http\Request;
 
 class ManagerController extends Controller
 {
-    public function index()
+    use ImageUploadTrait;
+
+    public function index(Request $request)
     {
-        $managers = User::role('manager')->get();
-       
+        $perPage = $request->input('per_page', 5);
+
+        $managers = User::role('manager')
+            ->paginate($perPage)
+            ->withQueryString();
+
         return Inertia::render('Managers/Index', [
             'managers' => $managers,
+            'manualPagination' => true,
         ]);
     }
 
@@ -32,45 +39,24 @@ class ManagerController extends Controller
         $data = $request->validated();
         $data['password'] = Hash::make($data['password']);
 
-        // Upload avatar image
-        if ($request->hasFile('avatar_image')) {
-            $file = $request->file('avatar_image');
-            $filename = time() . '_' . $file->getClientOriginalName();
-
-
-            $file->storeAs('avatars', $filename, 'public');
-
-
-            $data['avatar_image'] = $filename;
-        } else {
-            $data['avatar_image'] = 'avatar.png';
-        }
+        // Handle avatar upload using the trait
+        $data['avatar_image'] = $this->uploadImage($request->file('avatar_image'), 'avatars', null, 'avatar.png');
 
         $data['role'] = 'manager';
 
         $user = User::create($data);
         $user->assignRole('manager');
-        $managers = User::role('manager')->get();
-
 
         return redirect()->route('manager.index')->with('success', 'Manager created successfully.');
     }
 
-
     public function update(UpdateManagerRequest $request, User $manager)
     {
         $data = $request->validated();
-        unset($data['national_id']);
+        unset($data['national_id']); // Prevent updating the national ID
 
-        if ($request->hasFile('avatar_image')) {
-            if ($manager->avatar_image && $manager->avatar_image !== 'avatar.png' && Storage::exists('public/avatars/' . $manager->avatar_image)) {
-                Storage::delete('public/avatars/' . $manager->avatar_image);
-            }
-
-            $filename = time() . '_' . $request->file('avatar_image')->getClientOriginalName();
-            $request->file('avatar_image')->storeAs('public/avatars', $filename);
-            $data['avatar_image'] = $filename;
-        }
+        // Handle avatar upload using the trait
+        $data['avatar_image'] = $this->uploadImage($request->file('avatar_image'), 'avatars', $manager->avatar_image, 'avatar.png');
 
         $manager->update($data);
 
@@ -79,13 +65,11 @@ class ManagerController extends Controller
 
     public function destroy(User $manager)
     {
-        if ($manager->avatar_image && $manager->avatar_image !== 'avatar.png' && Storage::exists('public/avatars/' . $manager->avatar_image)) {
-            Storage::delete('public/avatars/' . $manager->avatar_image);
-        }
+        // Delete the avatar using the trait
+        $this->deleteImage($manager->avatar_image, 'avatars');
 
         $manager->delete();
 
         return back()->with('success', 'Manager deleted successfully.');
     }
-
 }
