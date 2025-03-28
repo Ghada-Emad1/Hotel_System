@@ -29,7 +29,6 @@ class RolesAndPermissionsSeeder extends Seeder
 
             'client_reservations',
             'My_Approved_client',
-            'view_reports',
         ];
 
         // Ensure permissions exist without duplication
@@ -45,7 +44,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'manage_clients',
             'manage_floors',
             'manage_rooms',
-            'view_reports',
+
         ]);
 
         $managerRole = Role::firstOrCreate(['name' => 'manager']);
@@ -54,7 +53,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'manage_floors',
             'manage_rooms',
             'manage_clients',
-            'view_reports',
+
         ]);
 
         $receptionistRole = Role::firstOrCreate(['name' => 'receptionist']);
