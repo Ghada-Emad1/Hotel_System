@@ -142,5 +142,5 @@ We’d love to hear from you! 😊
 
 ---
 
-🚀 Developed with passion by **[Fatma_Ali - Aml_Mohsen - Monica_Amgad - Ghada_Emad ]**
+🚀 Developed with passion by **[Fatma Ali - Aml Mohsen - Monica Amgad - Ghada Emad ]**
 
