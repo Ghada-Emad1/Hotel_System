@@ -89,20 +89,8 @@ const mainNav = computed(() => {
             icon: User,
         });
     }
-    if (permissions.value.includes('make_reservations')) {
-        items.push({
-            title: 'Make Reservations',
-            href: `/${user.value}/make_reservations`,
-            icon: User,
-        });
-    }
-    if (permissions.value.includes('Available_rooms')) {  
-        items.push({
-            title: 'Available Rooms',
-            href: `/${user.value}/available_rooms`,
-            icon: User,
-        });
-    }
+   
+    
     if (permissions.value.includes('My_reservations')) {
         items.push({
             title: 'My Reservations',

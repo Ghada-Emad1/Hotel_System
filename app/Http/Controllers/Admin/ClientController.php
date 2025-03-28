@@ -16,7 +16,7 @@ class ClientController extends Controller
     {
         $clients = User::where('role', 'client')
             ->with('approval', 'approval.approver:id,name')
-            ->paginate(20);
+            ->paginate(30);
         return Inertia::render('Clients/Index', [
             'clients' => $clients,
             'isAdmin' => auth()->user()->hasRole('admin'),

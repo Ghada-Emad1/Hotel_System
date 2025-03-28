@@ -28,7 +28,7 @@ const submitReservation = async () => {
       body: JSON.stringify({
         room_id: props.room.id,
         accompany_number: accompanyNumber.value,
-        amount: props.room.price * 100, // Stripe يتعامل بالسنتات
+        amount: props.room.price * 100, 
       }),
     });
 

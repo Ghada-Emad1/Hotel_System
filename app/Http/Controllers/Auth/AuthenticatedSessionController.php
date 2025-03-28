@@ -41,6 +41,20 @@ class AuthenticatedSessionController extends Controller
         if($request->user()->hasRole('receptionist')) {
             return redirect()->intended(route('receptionist.dashboard', absolute: false));
         }
+        $request->validate([
+            'email' => ['required', 'email'],
+            'password' => ['required'],
+        ]);
+
+        if (Auth::attempt($request->only('email', 'password'))) {
+            $request->session()->regenerate();
+
+            if (!Auth::user()->is_approved) {
+                return redirect()->route('pending.approval');
+            }
+
+            // return redirect()->intended(route('client.dashboard'));
+        }
 
         return redirect()->intended(route('client.dashboard', absolute: false));
     }
@@ -57,4 +71,10 @@ class AuthenticatedSessionController extends Controller
 
         return redirect('/');
     }
+
+
+
+
+
+    
 }

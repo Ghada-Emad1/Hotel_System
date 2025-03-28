@@ -25,11 +25,8 @@ const approveClient = (id) => {
   if (confirm('Are you sure you want to approve this client?')) {
     router.post(route('receptionist_client.approve', id), {}, {
       onSuccess: () => {
-        // Update the client's approval status in the UI
-        const client = props.clients.data.find(client => client.id === id);
-        if (client) {
-          client.is_approved = true; // Update the UI
-        }
+        // Reload only the 'clients' data from the server
+        router.reload({ only: ['clients'] });
       },
       onError: (errors) => {
         console.error(errors);
@@ -39,12 +36,17 @@ const approveClient = (id) => {
   }
 };
 
-const clients = props.clients;
-console.log("Clients ", clients);
-
 const deleteClient = (id) => {
   if (confirm('Are you sure you want to delete this client?')) {
-    router.delete(route('receptionist_client.destroy', id));
+    router.delete(route('receptionist_client.destroy', id), {
+      onSuccess: () => {
+        router.reload({ only: ['clients'] });
+      },
+      onError: (errors) => {
+        console.error(errors);
+        alert('An error occurred while deleting the client.');
+      },
+    });
   }
 };
 </script>
