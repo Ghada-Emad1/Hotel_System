@@ -46,7 +46,7 @@ const props = defineProps({
           <TableRow v-for="room in rooms.data" :key="room.id">
             <TableCell>{{ room.number }}</TableCell>
             <TableCell>{{ room.capacity }}</TableCell>
-            <TableCell>${{ room.price }}</TableCell>
+            <TableCell>${{ room.price/100 }}</TableCell>
             <TableCell>
                 <Button class="bg-red-700 hover:bg-red-400 text-white" 
                     @click="router.get(route('client.reservations.book', { room: room.id }))"

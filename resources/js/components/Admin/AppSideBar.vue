@@ -10,7 +10,7 @@ import NavMain from '../NavMain.vue';
 import NavUser from '../NavUser.vue';
 // Get user data from Inertia.js props
 const page = usePage();
-const user = computed(() => page.props.auth.user.roles);
+const user = computed(() => page.props.auth.user.roles[0]);
 
 // Extract user permissions (fallback to empty array if undefined)
 const permissions = computed(() => page.props.auth.user.permissions || []);
@@ -91,7 +91,7 @@ const mainNav = computed(() => {
     }
    
     
-    if (permissions.value.includes('My_reservations')) {
+    if (permissions.value.includes('make_reservations')) {
         items.push({
             title: 'My Reservations',
             href: `/${user.value}/my_reservations`,

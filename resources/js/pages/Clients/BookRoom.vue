@@ -31,7 +31,7 @@ const submitReservation = async () => {
       body: JSON.stringify({
         room_id: props.room.id,
         accompany_number: accompanyNumber.value,
-        amount: props.room.price * 100, // Convert price to cents
+        amount: props.room.price , 
       }),
     });
 
@@ -56,7 +56,7 @@ const submitReservation = async () => {
       <div class="border p-4 rounded-lg shadow">
         <p><strong>Room Number:</strong> {{ room.number }}</p>
         <p><strong>Capacity:</strong> {{ room.capacity }}</p>
-        <p><strong>Price:</strong> ${{ room.price }}</p>
+        <p><strong>Price:</strong> ${{ room.price/100 }}</p>
       </div>
       <form @submit.prevent="submitReservation" class="space-y-4">
         <div>
