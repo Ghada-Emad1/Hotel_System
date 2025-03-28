@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\ClientPendingController;
 use App\Http\Controllers\Admin\ClientApprovalController;
 use App\Http\Controllers\Admin\MyApprovedClientController;
 
+
 Route::get('/', function () {
     return Inertia::render('Welcome');
 })->name('home');
@@ -27,6 +28,8 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
             'admin' => true,
         ]);
     })->name('admin.dashboard');
+
+    
 });
 
 
@@ -205,9 +208,6 @@ Route::middleware(['auth', 'verified', 'role:client'])->prefix('client/my_reserv
     Route::get('/', [ReservationController::class, 'myReservations'])->name('index');
 });
 
-// Route::middleware(['auth', 'verified', 'role:client'])->prefix('client/make_reservations')->name('reservation.')->group(function () {
-//     Route::get('/reservations/rooms/{room}', [ReservationController::class, 'bookRoom'])->name('reservations.book');
-// });
 
 
 
@@ -221,5 +221,19 @@ Route::middleware(['auth', 'verified', 'role:client'])->prefix('client')->name('
     Route::get('/reservations/rooms/{room}', [ReservationController::class, 'bookRoom'])->name('reservations.book');
 });
 
+
+
+
+Route::get('/pending-approval', function () {
+    return Inertia::render('PendingApproval');
+})->name('pending.approval');
+
+Route::middleware(['auth', 'approved'])->group(function () {
+
+    Route::get('client/dashboard', function () {
+        return Inertia::render('ClientDashboard', [
+            'client' => true,
+        ]);
+    })->name('client.dashboard');});
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';

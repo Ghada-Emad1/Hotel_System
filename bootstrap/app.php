@@ -11,6 +11,7 @@ use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 use Spatie\Permission\Middleware\RoleMiddleware;
 use Spatie\Permission\Middleware\PermissionMiddleware;
 use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
+use App\Http\Middleware\EnsureUserIsApproved;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -26,11 +27,13 @@ return Application::configure(basePath: dirname(__DIR__))
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
             HandleRoles::class,
+            EnsureUserIsApproved::class,
     ]);
 
         $middleware->alias([
             'role' => RoleMiddleware::class,
             'permission' => PermissionMiddleware::class,
+            'approved' => EnsureUserIsApproved::class,
             'role_or_permission' => RoleOrPermissionMiddleware::class,
         ]);
     })

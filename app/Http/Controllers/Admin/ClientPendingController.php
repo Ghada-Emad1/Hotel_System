@@ -16,7 +16,7 @@ class ClientPendingController extends Controller
         $clients = User::where('role', 'client')
             ->where('is_approved', false) // Changed from null to true
             ->with('approval', 'approval.approver:id,name')
-            ->paginate(10);
+            ->paginate(30);
 
         return Inertia::render('Clients/PendingClient', [ // You might want to rename this view
             'clients' => $clients,
