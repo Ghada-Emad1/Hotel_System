@@ -5,11 +5,11 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Inertia\Inertia;
-
+use App\Notifications\ClientApprovedNotification;
 class ClientPendingController extends Controller
 {
 
-    
+
     // Fetch only pending clients (where is_approved is null or false)
     public function index()
     {
@@ -24,7 +24,7 @@ class ClientPendingController extends Controller
             'isManager' => auth()->user()->hasRole('manager'),
         ]);
     }
-    
+
     public function pending()
     {
         $pendingClients = User::role('client')
@@ -45,7 +45,7 @@ class ClientPendingController extends Controller
         if (!$client->hasRole('client')) {
             return back()->with('error', 'Only clients can be approved.');
         }
-
+        $client->notify(new ClientApprovedNotification());
         // Approve the client
         $client->update(['is_approved' => true]);
 

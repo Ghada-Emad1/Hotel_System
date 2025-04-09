@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Traits\ImageUploadTrait;
+use App\Notifications\ClientApprovedNotification;
 class ClientController extends Controller
 {
     use ImageUploadTrait;
@@ -115,6 +116,7 @@ class ClientController extends Controller
         if (!$client->hasRole('client')) {
             return back()->with('error', 'Only clients can be approved.');
         }
+        $client->notify(new ClientApprovedNotification());
 
         // Approve the client
         $client->update(['is_approved' => true]);

@@ -9,10 +9,19 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use Carbon\Carbon;
 use Inertia\Response;
+
 
 class AuthenticatedSessionController extends Controller
 {
+
+    
+    public function authenticated(Request $request, $user)
+    {
+        $user->update(['last_login_at' => Carbon::now()]);
+    }
+
     /**
      * Show the login page.
      */
@@ -41,22 +50,8 @@ class AuthenticatedSessionController extends Controller
         if($request->user()->hasRole('receptionist')) {
             return redirect()->intended(route('receptionist.dashboard', absolute: false));
         }
-        $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required'],
-        ]);
 
-        if (Auth::attempt($request->only('email', 'password'))) {
-            $request->session()->regenerate();
-
-            if (!Auth::user()->is_approved) {
-                return redirect()->route('pending.approval');
-            }
-
-            // return redirect()->intended(route('client.dashboard'));
-        }
-
-        return redirect()->intended(route('client.dashboard', absolute: false));
+        return redirect()->intended(route('dashboard', absolute: false));
     }
 
     /**
@@ -71,10 +66,4 @@ class AuthenticatedSessionController extends Controller
 
         return redirect('/');
     }
-
-
-
-
-
-    
 }

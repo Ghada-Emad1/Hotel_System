@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Middleware\AdminMiddleware;
-use App\Http\Middleware\ExcludeCheckoutCsrf;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\HandleRoles;
@@ -13,6 +12,7 @@ use Spatie\Permission\Middleware\RoleMiddleware;
 use Spatie\Permission\Middleware\PermissionMiddleware;
 use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
 use App\Http\Middleware\EnsureUserIsApproved;
+use App\Http\Middleware\ExcludeCheckoutCsrf;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(

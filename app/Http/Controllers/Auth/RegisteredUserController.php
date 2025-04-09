@@ -22,7 +22,7 @@ class RegisteredUserController extends Controller
     public function create(): Response
     {
         // Define allowed countries
-        $countries = ['Egypt', 'Saudi Arabia', 'US', 'UAE', 'UK', 'Australia', 'Others', 'Japan', 'Canada'];
+        $countries = ['Egypt', 'Saudi Arabia', 'US', 'UAE', 'UK', 'Australia', 'Others'];
 
         return Inertia::render('auth/Register', [
             'countries' => $countries,
@@ -60,12 +60,18 @@ class RegisteredUserController extends Controller
             'avatar_image' => $avatarPath,
             'country' => $request->country,
             'gender' => $request->gender,
-            'is_approved' => false,
-            'role' => 'client',
+            'status' => 'pending', // Default status: Pending approval,
+            'role'=>'client',
+            
         ]);
 
+        // Fire an event for user registration
         event(new Registered($user));
+
+        // Log in the user automatically after registration
         Auth::login($user);
-        return redirect()->route('login')->with('success', 'Registration successful. Please log in.');
+
+        // Redirect to dashboard with a success message
+        return to_route('dashboard')->with('success', 'Your account has been registered successfully! Please wait for approval.');
     }
 }
