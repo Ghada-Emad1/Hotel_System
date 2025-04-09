@@ -1,28 +1,42 @@
 <script setup>
 import AdminAppLayout from '@/layouts/AdminAppLayout.vue';
 import { Head, router } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 
 import { Button } from '@/components/ui/button';
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table';
+import DataTable from '@/components/ui/data-table.vue'; // Import the reusable DataTable component
 
 import AddManagerModal from './AddManagerModal.vue';
 import EditManagerModal from './EditManagerModal.vue';
 
 const props = defineProps({
     managers: Object, // Updated to accept a paginated object
+    filters: Object, // Receive filters from the controller
+    countries: Array, // Receive countries from the controller
 });
 
 const showAddModal = ref(false);
 const showEditModal = ref(false);
 const selectedManager = ref(null);
+
+const filters = ref({
+    search: props.filters.search || '',
+    country: props.filters.country || '',
+    gender: props.filters.gender || '',
+});
+
+const columns = [
+    {
+        key: 'avatar_image',
+        label: 'Avatar',
+        format: (value) => value || 'avatar.png', // Return only the image path
+    },
+    { key: 'name', label: 'Name' },
+    { key: 'email', label: 'Email' },
+    { key: 'national_id', label: 'National ID' },
+    { key: 'country', label: 'Country' },
+    { key: 'gender', label: 'Gender' },
+];
 
 const openEditModal = (manager) => {
     selectedManager.value = manager;
@@ -43,9 +57,22 @@ const deleteManager = (id) => {
 };
 
 const updatePage = (page) => {
-    router.get(route('manager.index', { page }), {}, { preserveState: true, preserveScroll: true });
+    router.get(route('manager.index', { ...filters.value, page }), {}, { preserveState: true, preserveScroll: true });
 };
+
+// Watch filters and send requests dynamically
+watch(filters, (newFilters) => {
+    router.get(route('manager.index', {
+        search: newFilters.search,
+        country: newFilters.country,
+        gender: newFilters.gender
+    }), {}, {
+        preserveState: true,
+        preserveScroll: true,
+    });
+}, { deep: true });
 </script>
+
 <template>
 
     <Head title="Manage Managers" />
@@ -54,59 +81,48 @@ const updatePage = (page) => {
         <div class="p-8 space-y-6">
             <div class="flex justify-between items-center">
                 <h1 class="text-2xl font-bold">Manage Managers</h1>
-                <Button @click="showAddModal = true">Add Manager</Button>
-            </div>
-
-            <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead>Avatar</TableHead>
-                        <TableHead>Name</TableHead>
-                        <TableHead>Email</TableHead>
-                        <TableHead>National ID</TableHead>
-                        <TableHead>Country</TableHead>
-                        <TableHead>Gender</TableHead>
-                        <TableHead>Actions</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    <TableRow v-for="manager in managers.data" :key="manager.id">
-                        <!-- Avatar Image -->
-                        <TableCell>
-                            <img :src="manager.avatar_image ? `/storage/avatars/${manager.avatar_image}` : '/storage/avatars/avatar.png'"
-                                alt="Avatar" class="w-10 h-10 rounded-full border" />
-                        </TableCell>
-                        <TableCell>{{ manager.name }}</TableCell>
-                        <TableCell>{{ manager.email }}</TableCell>
-                        <TableCell>{{ manager.national_id }}</TableCell>
-                        <TableCell>{{ manager.country }}</TableCell>
-                        <TableCell>{{ manager.gender }}</TableCell>
-                        <TableCell>
-                            <Button class="mr-2" @click="openEditModal(manager)">Edit</Button>
-                            <Button variant="destructive" @click="deleteManager(manager.id)">Delete</Button>
-                        </TableCell>
-                    </TableRow>
-                </TableBody>
-            </Table>
-
-            <!-- Pagination Controls -->
-            <div class="flex items-center justify-between mt-4">
-                <Button variant="outline" size="sm" @click="updatePage(managers.current_page - 1)"
-                    :disabled="managers.current_page === 1">
-                    Previous
-                </Button>
-                <span class="text-sm text-muted-foreground">
-                    Page {{ managers.current_page }} of {{ managers.last_page }}
-                </span>
-                <Button variant="outline" size="sm" @click="updatePage(managers.current_page + 1)"
-                    :disabled="managers.current_page === managers.last_page">
-                    Next
+                <Button variant="default" class="px-4 py-2" @click="showAddModal = true">
+                    Add Manager
                 </Button>
             </div>
 
-            <AddManagerModal v-if="showAddModal" @close="showAddModal = false" />
-            <EditManagerModal v-if="showEditModal" :manager="selectedManager" @close="showEditModal = false" />
+            <!-- Filters Section -->
+            <div class="flex space-x-4 mb-4">
+                <input v-model="filters.search" type="text" placeholder="Search by name, email, or ID"
+                    class="border rounded px-4 py-2" />
+                <select v-model="filters.country" class="border rounded px-4 py-2">
+                    <option value="">All Countries</option>
+                    <option v-for="country in countries" :key="country" :value="country">
+                        {{ country }}
+                    </option>
+                </select>
+                <select v-model="filters.gender" class="border rounded px-4 py-2">
+                    <option value="">All Genders</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                </select>
+            </div>
+
+            <!-- Reusable DataTable Component -->
+            <DataTable :data="managers.data" :columns="columns" :manualPagination="true"
+                :currentPage="managers.current_page" :perPage="managers.per_page" :total="managers.total"
+                @page-change="updatePage">
+                <template #actions="{ row }">
+                    <div class="flex gap-2">
+                        <Button variant="outline" size="sm" @click="openEditModal(row)">
+                            Edit
+                        </Button>
+                        <Button variant="destructive" size="sm" @click="deleteManager(row.id)">
+                            Delete
+                        </Button>
+                    </div>
+                </template>
+            </DataTable>
+
+            <!-- Modals -->
+            <AddManagerModal v-if="showAddModal" :countries="countries" @close="showAddModal = false" />
+            <EditManagerModal v-if="showEditModal" :manager="selectedManager" :countries="countries"
+                @close="showEditModal = false" />
         </div>
     </AdminAppLayout>
-
 </template>

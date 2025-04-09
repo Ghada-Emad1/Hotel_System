@@ -6,30 +6,51 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreFloorRequest;
 use App\Http\Requests\UpdateFloorRequest;
 use App\Models\Floor;
+use App\Models\User;
 use App\Models\Room;
 use Inertia\Inertia;
-use Illuminate\Http\Request; 
+use Illuminate\Http\Request;
 
 class FloorController extends Controller
 {
-    public function index(Request $request) 
+    public function index(Request $request)
     {
         $user = auth()->user();
         $perPage = $request->input('per_page', 10);
         $query = Floor::query()->with('manager:id,name');
 
+        // Apply search filter
+        if ($request->has('search') && $request->search) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('number', 'like', "%{$search}%");
+            });
+        }
+
+        // Apply manager filter
+        if ($request->has('manager_id') && $request->manager_id) {
+            $query->where('manager_id', $request->manager_id);
+        }
+
         $floors = $query->paginate($perPage)->withQueryString();
+
+        // Fetch all managers for the filter dropdown
+        $managers=User::role('manager')->select('id', 'name')->get();
+
         return Inertia::render('Floors/Index', [
             'floors' => $floors,
             'userId' => $user->id,
             'isAdmin' => $user->hasRole('admin'),
+            'filters' => $request->only(['search', 'manager_id']), // Pass filters to the view
+            'managers' => $managers, // Pass managers to the view
         ]);
     }
 
     public function store(StoreFloorRequest $request)
     {
         $latestFloor = Floor::latest()->first();
-        $newFloorNumber = $latestFloor ? $latestFloor->number + 1 : 1000; 
+        $newFloorNumber = $latestFloor ? $latestFloor->number + 1 : 1000;
 
         Floor::create([
             'name' => $request->name,

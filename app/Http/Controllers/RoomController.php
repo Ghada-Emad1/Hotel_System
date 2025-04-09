@@ -15,19 +15,42 @@ class RoomController extends Controller
     public function index(Request $request)
     {
         $user = auth()->user();
-        $perPage = $request->input('per_page', 10); // Default to 10 items per page
+        $perPage = $request->input('per_page', 5); // Default to 10 items per page
 
         $query = Room::query()
             ->with('floor:id,name', 'manager:id,name');
 
-        // Apply pagination
+        // Apply search filter
+        if ($request->has('search') && $request->search) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('number', 'like', "%{$search}%")
+                  ->orWhere('capacity', 'like', "%{$search}%")
+                  ->orWhereHas('floor', function ($q) use ($search) {
+                      $q->where('name', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        // Apply floor filter
+        if ($request->has('floor_id') && $request->floor_id) {
+            $query->where('floor_id', $request->floor_id);
+        }
+
+        // Apply manager filter
+        if ($request->has('manager_id') && $request->manager_id) {
+            $query->where('manager_id', $request->manager_id);
+        }
+
         $rooms = $query->paginate($perPage)->withQueryString();
 
         return Inertia::render('Rooms/Index', [
             'rooms' => $rooms,
             'floors' => Floor::select('id', 'name')->get(),
+            'managers' => \App\Models\User::role('manager')->select('id', 'name')->get(), // Fetch managers for filtering
             'isAdmin' => $user->hasRole('admin'),
             'userId' => $user->id,
+            'filters' => $request->only(['search', 'floor_id', 'manager_id']), // Pass filters to the view
         ]);
     }
 

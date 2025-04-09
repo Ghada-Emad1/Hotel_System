@@ -2,7 +2,10 @@
 import { useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
 
-const props = defineProps({ manager: Object });
+const props = defineProps({
+  manager: Object,
+  countries: Array, // Receive countries as a prop
+});
 const emit = defineEmits(['close']);
 
 const form = useForm({
@@ -67,7 +70,13 @@ const submit = () => {
         </div>
         <div>
           <label class="block font-medium mb-1">Country</label>
-          <input v-model="form.country" type="text" class="w-full border rounded px-3 py-2" />
+          <select v-model="form.country" class="w-full border rounded px-3 py-2">
+            <option disabled value="">Select a country</option>
+            <option v-for="country in countries" :key="country" :value="country">
+              {{ country }}
+            </option>
+          </select>
+          <p class="text-sm text-red-500">{{ form.errors.country }}</p>
         </div>
         <div>
           <label class="block font-medium mb-1">Gender</label>
